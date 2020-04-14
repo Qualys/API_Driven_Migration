@@ -120,7 +120,7 @@ class QualysAPI:
         }
         return switcher.get(pod, "invalid")
 
-    def makeCall(self, url, payload="", headers=None, retryCount=0):
+    def makeCall(self, url, payload="", headers=None, retryCount=0, method='POST'):
         # Get the headers from our own session object
         rheaders = self.sess.headers
         # If there are headers (meaning the __init__ method has been called and the api object was correctly created)
@@ -131,7 +131,7 @@ class QualysAPI:
                 rheaders[h] = headers[h]
 
         # Create a Request object using the requests library
-        r = requests.Request('POST', url, data=payload, headers=rheaders)
+        r = requests.Request(method, url, data=payload, headers=rheaders)
         # Prepare the request for sending
         prepped_req = self.sess.prepare_request(r)
         # If the proxy is enabled, send via the proxy
