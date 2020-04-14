@@ -194,7 +194,7 @@ def createTags(api: QualysAPI.QualysAPI, tags: ET.Element):
     print('QualysTagProcessor: Creating Tags... ', end='')
     print('Consuming %s API calls... ' % str(len(tags.findall('./Tag'))))
     # Wrap each root-level tag in a ServiceRequest
-    counter=1
+    counter = 1
     for tag in tags.findall('./Tag'):
         if tag.find('id') is not None:
             tag.remove(tag.find('id'))
@@ -203,7 +203,6 @@ def createTags(api: QualysAPI.QualysAPI, tags: ET.Element):
         if tag.find('modified') is not None:
             tag.remove(tag.find('modified'))
         print('%s: ' % str(counter), end='')
-
 
         sr = ET.Element('ServiceRequest')
         data = ET.SubElement(sr, 'data')
