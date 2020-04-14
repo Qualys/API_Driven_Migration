@@ -48,7 +48,7 @@ if __name__ == '__main__':
     enableProxy = False
     proxyURL = ''
     if args.proxyenable:
-        if args.proxyurl == '' or proxyurl is None:
+        if args.proxyurl == '' or args.proxyurl is None:
             print('FATAL: -p or --proxyenable is specified without -u or --proxyurl')
             sys.exit(2)
         proxyURL = args.proxyurl
@@ -59,13 +59,47 @@ if __name__ == '__main__':
     target_api = QualysAPI.QualysAPI(svr=target_url, usr=args.target_username, passwd=args.target_password,
                                      enableProxy=enableProxy, proxy=proxyURL, debug=args.debug)
 
-    # TODO Implement try/catch for the rest of this
-    source_tags = QualysTagProcessor.getTags(api=source_api)
+    try:
+        source_tags = QualysTagProcessor.getTags(api=source_api)
+    except:
+        print('FATAL: QualysTagProcessor.getTags() failed')
+        sys.exit(3)
     if source_tags is None:
         print('FATAL: QualysTagProcessor.getTags() FAILED')
-        sys.exit(1)
-    source_tags = QualysTagProcessor.pruneSystemTags(tags=source_tags)
-    target_tags = QualysTagProcessor.restructureTags(tags=source_tags)
+        sys.exit(3)
 
-    response = QualysTagProcessor.createTags(api=targetapi, tags=target_tags)
+    try:
+        source_tags = QualysTagProcessor.pruneSystemTags(tags=source_tags)
+    except:
+        print('FATAL: QualysTagProcessor.pruneSystemTags() FAILED')
+        sys.exit(4)
+    if source_tags is None:
+        print('FATAL: QualysTagProcessor.pruneSystemTags() FAILED')
+        sys.exit(9)
 
+    try:
+        target_tags = QualysTagProcessor.restructureTags(tags=source_tags)
+    except:
+        print('FATAL: QualysTagProcessor.restructureTags() FAILED')
+        sys.exit(5)
+    if target_tags is None:
+        print('FATAL: QualysTagProcessor.restructureTags() FAILED')
+        sys.exit(9)
+
+    try:
+        target_tags = QualysTagProcessor.handleSystemParents(target_api=target_api, tags=target_tags)
+    except:
+        print('FATAL: QualysTagProcessor.handleSystemParent() FAILED')
+        sys.exit(6)
+    if target_tags is None:
+        print('FATAL: QualysTagProcessor.handleSystemParent() FAILED')
+        sys.exit(9)
+
+    try:
+        response = QualysTagProcessor.createTags(api=target_api, tags=target_tags)
+    except:
+        print('FATAL: QualysTagProcessor.createTags() FAILED')
+        sys.exit(7)
+
+    print('Source API Calls Made : %s' % source_api.callCount)
+    print('Target API Calls Made : %s' % target_api.callCount)
