@@ -1,9 +1,10 @@
 import argparse
-import xml.etree.ElementTree as ET
+import sys
 import QualysAPI
 import testTags
 import testSubscription
 import testIPs
+import testDomains
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -20,10 +21,13 @@ if __name__ == '__main__':
     parser.add_argument('-u', '--proxyurl', help='Proxy URL (requires -p or --proxyenable)')
     parser.add_argument('-a', '--apiurl', help='API URL for Qualys PCP Subscriptions.')
     parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output')
-    parser.add_argument('-s', '--simulate', action='store_true', help='Simulate - obtain data from source, do not send to target')
+    parser.add_argument('-s', '--simulate', action='store_true', help='Simulate - obtain data from source, do not send '
+                                                                      'to target')
     parser.add_argument('-T', '--testTags', action='store_true', help='Test Tag Migration')
-    parser.add_argument('-S', '--testSubscription', action='store_true', help='Test Subscription Configuration Migration')
+    parser.add_argument('-S', '--testSubscription', action='store_true', help='Test Subscription Configuration '
+                                                                              'Migration')
     parser.add_argument('-I', '--testIPs', action='store_true', help='Test IP Migration')
+    parser.add_argument('-D', '--testDomains', action='store_true', help='Test Domains Migration')
 
     args = parser.parse_args()
 
@@ -81,3 +85,6 @@ if __name__ == '__main__':
     if args.testIPs:
         response = testIPs.testIPs(source_api=source_api, target_api=target_api, simulate=args.simulate)
 
+    # Domains
+    if args.testDomains:
+        response = testDomains.testDomains(source_api=source_api, target_api=target_api, simulate=args.simulate)
