@@ -3,7 +3,7 @@ import QualysAPI
 import QualysTagProcessor
 
 
-def testTags(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI):
+def testTags(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):
     try:
         source_tags = QualysTagProcessor.getTags(api=source_api)
     except:
@@ -40,11 +40,18 @@ def testTags(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI):
         print('FATAL: QualysTagProcessor.handleSystemParent() FAILED')
         sys.exit(9)
 
-    try:
-        response = QualysTagProcessor.createTags(api=target_api, tags=target_tags)
-    except:
-        print('FATAL: QualysTagProcessor.createTags() FAILED')
-        sys.exit(7)
+    if not simulate:
+        try:
+            response = QualysTagProcessor.createTags(api=target_api, tags=target_tags)
+        except:
+            print('FATAL: QualysTagProcessor.createTags() FAILED')
+            sys.exit(7)
+    else:
+        print('================================================================================')
+        print('TAG HIERARCHY')
+        print('********************************************************************************')
+        ET.dump(target_tags)
+        print('================================================================================')
 
     print('Source API Calls Made : %s' % source_api.callCount)
     print('Target API Calls Made : %s' % target_api.callCount)

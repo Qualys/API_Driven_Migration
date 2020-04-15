@@ -2,7 +2,15 @@ import QualysAPI
 import QualysSubscriptionProcessor
 
 
-def testSubscription(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI):
+def testSubscription(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):
     configxml = QualysSubscriptionProcessor.exportSubscriptionConfig(api=source_api)
-    response = QualysSubscriptionProcessor.importSubscriptionConfig(api=target_api, configxml=configxml)
-    return response
+    if simulate:
+        print('================================================================================')
+        print('SUBSCRIPTION PREFERENCES')
+        print('********************************************************************************')
+        ET.dump(configxml)
+        print('================================================================================')
+        return None
+    else:
+        response = QualysSubscriptionProcessor.importSubscriptionConfig(api=target_api, configxml=configxml)
+        return response
