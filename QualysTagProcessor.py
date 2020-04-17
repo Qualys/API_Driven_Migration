@@ -220,8 +220,7 @@ def createTags(api: QualysAPI.QualysAPI, tags: ET.Element):
             print('--------------------------------------------------------------------------------')
             ET.dump(sr)
             print('--------------------------------------------------------------------------------')
-
         else:
             print('Success')
         counter += 1
-
+    return True

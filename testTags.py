@@ -1,4 +1,3 @@
-import sys
 import QualysAPI
 import QualysTagProcessor
 
@@ -8,50 +7,48 @@ def testTags(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, s
         source_tags = QualysTagProcessor.getTags(api=source_api)
     except:
         print('FATAL: QualysTagProcessor.getTags() failed')
-        sys.exit(3)
+        return False
     if source_tags is None:
         print('FATAL: QualysTagProcessor.getTags() FAILED')
-        sys.exit(3)
+        return False
 
     try:
         source_tags = QualysTagProcessor.pruneSystemTags(tags=source_tags)
     except:
         print('FATAL: QualysTagProcessor.pruneSystemTags() FAILED')
-        sys.exit(4)
+        return False
     if source_tags is None:
         print('FATAL: QualysTagProcessor.pruneSystemTags() FAILED')
-        sys.exit(9)
+        return False
 
     try:
         target_tags = QualysTagProcessor.restructureTags(tags=source_tags)
     except:
         print('FATAL: QualysTagProcessor.restructureTags() FAILED')
-        sys.exit(5)
+        return False
     if target_tags is None:
         print('FATAL: QualysTagProcessor.restructureTags() FAILED')
-        sys.exit(9)
+        return False
 
     try:
         target_tags = QualysTagProcessor.handleSystemParents(target_api=target_api, tags=target_tags)
     except:
         print('FATAL: QualysTagProcessor.handleSystemParent() FAILED')
-        sys.exit(6)
+        return False
     if target_tags is None:
         print('FATAL: QualysTagProcessor.handleSystemParent() FAILED')
-        sys.exit(9)
+        return False
 
     if not simulate:
         try:
-            response = QualysTagProcessor.createTags(api=target_api, tags=target_tags)
+            return = QualysTagProcessor.createTags(api=target_api, tags=target_tags)
         except:
             print('FATAL: QualysTagProcessor.createTags() FAILED')
-            sys.exit(7)
+            return False
     else:
         print('================================================================================')
         print('TAG HIERARCHY')
         print('********************************************************************************')
         ET.dump(target_tags)
         print('================================================================================')
-
-    print('Source API Calls Made : %s' % source_api.callCount)
-    print('Target API Calls Made : %s' % target_api.callCount)
+        return True

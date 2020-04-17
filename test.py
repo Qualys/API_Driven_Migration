@@ -5,6 +5,15 @@ import testTags
 import testSubscription
 import testIPs
 import testDomains
+import testNetworks
+import testAssetGroups
+
+
+def quit(exitcode: int):
+    print('Source API Calls Made : %s' % source_api.callCount)
+    print('Target API Calls Made : %s' % target_api.callCount)
+    sys.exit(exitcode)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -28,6 +37,8 @@ if __name__ == '__main__':
                                                                               'Migration')
     parser.add_argument('-I', '--testIPs', action='store_true', help='Test IP Migration')
     parser.add_argument('-D', '--testDomains', action='store_true', help='Test Domains Migration')
+    parser.add_argument('-N', '--testNetworks', action='store_true', help='Test Networks Migration')
+    parser.add_argument('-A', '--testAssetGroups', action='store_true', help='Test Asset Groups Migration')
 
     args = parser.parse_args()
 
@@ -75,16 +86,38 @@ if __name__ == '__main__':
 
     # Tags
     if args.testTags:
-        testTags.testTags(source_api=source_api, target_api=target_api, simulate=args.simulate)
+        if not testTags.testTags(source_api=source_api, target_api=target_api, simulate=args.simulate):
+            print('Tag test failed')
+            quit(1)
 
     # Subscription Prefs
     if args.testSubscription:
-        response = testSubscription.testSubscription(source_api=source_api, target_api=target_api,
-                                                     simulate=args.simulate)
+        if not testSubscription.testSubscription(source_api=source_api, target_api=target_api,
+                                                     simulate=args.simulate):
+            print('Subscription Preferences test failed')
+            quit(1)
+
     # IPs
     if args.testIPs:
-        response = testIPs.testIPs(source_api=source_api, target_api=target_api, simulate=args.simulate)
+        if not testIPs.testIPs(source_api=source_api, target_api=target_api, simulate=args.simulate):
+            print('IPs test failed')
+            quit(1)
 
     # Domains
     if args.testDomains:
-        response = testDomains.testDomains(source_api=source_api, target_api=target_api, simulate=args.simulate)
+        if not testDomains.testDomains(source_api=source_api, target_api=target_api, simulate=args.simulate):
+            print('Domains test failed')
+            quit(1)
+
+    # Networks
+    if args.testNetworks:
+        if not testNetworks.testNetworks(source_api=source_api, target_api=target_api, simulate=args.simulate):#
+            print('Networks test failed')
+            quit(1)
+
+    # Asset Groups
+    if args.testAssetGroups:
+        if not testAssetGroups.testAssetGroups(source_api=source_api, target_api=target_api, simulate=args.simulate):
+            print('Asset Groups test failed')
+            quit(1)
+
