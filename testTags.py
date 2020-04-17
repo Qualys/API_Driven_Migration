@@ -1,6 +1,6 @@
 import QualysAPI
 import QualysTagProcessor
-
+import xml.etree.ElementTree as ET
 
 def testTags(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):
     try:
@@ -41,7 +41,7 @@ def testTags(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, s
 
     if not simulate:
         try:
-            return = QualysTagProcessor.createTags(api=target_api, tags=target_tags)
+            return QualysTagProcessor.createTags(api=target_api, tags=target_tags)
         except:
             print('FATAL: QualysTagProcessor.createTags() FAILED')
             return False
@@ -49,6 +49,7 @@ def testTags(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, s
         print('================================================================================')
         print('TAG HIERARCHY')
         print('********************************************************************************')
-        ET.dump(target_tags)
+        tagstr = ET.tostring(target_tags, method='html', encoding='utf-8').decode()
+        print('%s' % tagstr)
         print('================================================================================')
         return True
