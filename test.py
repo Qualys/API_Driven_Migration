@@ -8,6 +8,7 @@ import testDomains
 import testNetworks
 import testAssetGroups
 import testOptionProfiles
+import testReportTemplates
 
 
 def quit(exitcode: int):
@@ -40,6 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--testNetworks', action='store_true', help='Test Networks Migration')
     parser.add_argument('--testAssetGroups', action='store_true', help='Test Asset Groups Migration')
     parser.add_argument('--testOptionProfiles', action='store_true', help='Test Option Profiles Migration')
+    parser.add_argument('--testReportTemplates', action='store_true', help='Test Report Templates Migration')
 
     args = parser.parse_args()
 
@@ -126,5 +128,12 @@ if __name__ == '__main__':
     if args.testOptionProfiles:
         if not testOptionProfiles.testOptionProfiles(source_api=source_api, target_api=target_api,
                                                      simulate=args.simulate):
-            print('Option Profiles test failes')
+            print('Option Profiles test failed')
+            quit(1)
+
+    # Report Templates
+    if args.testReportTemplates:
+        if not testReportTemplates.testReportTemplates(source_api=source_api, target_api=target_api,
+                                                       simulate=args.simulate):
+            print('Report Templates test failed')
             quit(1)
