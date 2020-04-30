@@ -29,6 +29,8 @@ def convertAssetGroups(aglist: ET.Element, netmap: dict = None, appliancemap: di
     baseurl = '/api/2.0/fo/asset/group/?create'
 
     for ag in aglist.findall('ASSET_GROUP'):
+        if ag.find('TITLE').text == 'All':
+            continue
         addurl = '%s&title=%s&cvss_enviro_cdp=%scvss_enviro_td=%scvss_enviro_cr=%scvss_enviro_ir=%scvss_enviro_ar=%s' \
                  'comments=%s' %\
                  (baseurl,
