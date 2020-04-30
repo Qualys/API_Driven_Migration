@@ -10,6 +10,8 @@ import testAssetGroups
 import testOptionProfiles
 import testReportTemplates
 import testSearchLists
+import testAppliance
+
 
 def quit(exitcode: int):
     print('Source API Calls Made : %s' % source_api.callCount)
@@ -43,6 +45,7 @@ if __name__ == '__main__':
     parser.add_argument('--testOptionProfiles', action='store_true', help='Test Option Profiles Migration')
     parser.add_argument('--testReportTemplates', action='store_true', help='Test Report Templates Migration')
     parser.add_argument('--testSearchLists', action='store_true', help='Test Search List Migration')
+    parser.add_argument('--testAppliances', action='store_true', help='Test Appliance Migration')
 
     args = parser.parse_args()
 
@@ -144,3 +147,11 @@ if __name__ == '__main__':
         if not testSearchLists.testSearchLists(source_api=source_api, target_api=target_api, simulate=args.simulate):
             print('Search Lists test failed')
             quit(1)
+
+    # Appliances
+    if args.testAppliances:
+        if not testAppliance.testAppliances(source_api=source_api, target_api=target_api, simulate=args.simulate):
+            print('Appliance test failed')
+            quit(1)
+
+    quit(0)
