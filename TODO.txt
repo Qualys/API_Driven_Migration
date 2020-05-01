@@ -1,7 +1,5 @@
-#TODO Users
 #TODO Authentication Records
-#TODO Compliance Policies
-#TODO UDCs?
+#TODO Compliance Policies - There but very broken
 #TODO Scan Schedules
 #TODO IPv6 Mappings
 

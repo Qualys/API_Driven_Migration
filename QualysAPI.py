@@ -120,7 +120,7 @@ class QualysAPI:
         }
         return switcher.get(pod, "invalid")
 
-    def makeCall(self, url, payload="", headers=None, retryCount=0, method='POST'):
+    def makeCall(self, url, payload="", headers=None, retryCount=0, method='POST', returnwith='xml'):
         # Get the headers from our own session object
         rheaders = self.sess.headers
         # If there are headers (meaning the __init__ method has been called and the api object was correctly created)
@@ -155,8 +155,8 @@ class QualysAPI:
             crun = int(resp.headers['X-Concurrency-Limit-Running'])
             # If crun > climit then we have hit the concurrency limit.  We then wait for a number of seconds depending
             #   on how many retry attempts there have been
-            if crun > climit:
-                print("QualysAPI.makeCall: Concurrency limit hit.  %s/%s running calls" % (crun,climit))
+            if crun >= climit:
+                print("QualysAPI.makeCall: Concurrency limit hit.  %s/%s running calls" % (crun, climit))
                 retryCount = retryCount + 1
                 if retryCount > 15:
                     print("QualysAPI.makeCall: Retry count > 15, waiting 60 seconds")
@@ -204,5 +204,9 @@ class QualysAPI:
         # Increment the API call count (failed calls are not included in the count)
         self.callCount = self.callCount + 1
 
-        # Return the response as an ElementTree XML object
-        return ET.fromstring(resp.text)
+        if returnwith == 'xml':
+            # Return the response as an ElementTree XML object
+            return ET.fromstring(resp.text)
+        if returnwith == 'text':
+            # Return with the response as a text string
+            return resp.text

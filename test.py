@@ -12,6 +12,7 @@ import testReportTemplates
 import testSearchLists
 import testAppliance
 import testUsers
+import testCompliancePolicy
 
 
 def quit(exitcode: int):
@@ -48,6 +49,7 @@ if __name__ == '__main__':
     parser.add_argument('--testSearchLists', action='store_true', help='Test Search List Migration')
     parser.add_argument('--testAppliances', action='store_true', help='Test Appliance Migration')
     parser.add_argument('--testUsers', action='store_true', help='Test User Migration')
+    parser.add_argument('--testCompliancePolicy', action='store_true', help='Test Compliance Policy Migration')
 
     args = parser.parse_args()
 
@@ -160,6 +162,13 @@ if __name__ == '__main__':
     if args.testUsers:
         if not testUsers.testUsers(source_api=source_api, target_api=target_api, simulate=args.simulate):
             print('User test failed')
+            quit(1)
+
+    # Compliance Policies
+    if args.testCompliancePolicy:
+        if not testCompliancePolicy.testCompliancePolicy(source_api=source_api, target_api=target_api,
+                                                         simulate=args.simulate):
+            print('Compliance Policies test failed')
             quit(1)
 
     quit(0)

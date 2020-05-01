@@ -1,6 +1,5 @@
 import xml.etree.ElementTree as ET
 import QualysAPI
-import csv
 
 
 def responseHandler(resp):
