@@ -1,5 +1,6 @@
-#TODO Authentication Records
-#TODO Compliance Policies - There but very broken
-#TODO Scan Schedules
-#TODO IPv6 Mappings
+Authentication Records
+Compliance Policies - There but very broken
+Scan Schedules - Mostly done, needs Cloud Perimeter Scans adding to it though
+IPv6 Mappings
+
 

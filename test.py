@@ -13,6 +13,8 @@ import testSearchLists
 import testAppliance
 import testUsers
 import testCompliancePolicy
+import testVMScanSchedule
+import testCloudConnector
 
 
 def quit(exitcode: int):
@@ -50,6 +52,8 @@ if __name__ == '__main__':
     parser.add_argument('--testAppliances', action='store_true', help='Test Appliance Migration')
     parser.add_argument('--testUsers', action='store_true', help='Test User Migration')
     parser.add_argument('--testCompliancePolicy', action='store_true', help='Test Compliance Policy Migration')
+    parser.add_argument('--testVMScanSchedule', action='store_true', help='Test VM Scan Schedule Migration')
+    parser.add_argument('--testCloudConnector', action='store_true', help='Test Cloud Connector Migration')
 
     args = parser.parse_args()
 
@@ -169,6 +173,20 @@ if __name__ == '__main__':
         if not testCompliancePolicy.testCompliancePolicy(source_api=source_api, target_api=target_api,
                                                          simulate=args.simulate):
             print('Compliance Policies test failed')
+            quit(1)
+
+    # VM Scan Schedules
+    if args.testVMScanSchedule:
+        if not testVMScanSchedule.testVMScanSchedule(source_api=source_api, target_api=target_api,
+                                                     simulate=args.simulate):
+            print('VM Scan Schedules test failed')
+            quit(1)
+
+    # Cloud Connectors
+    if args.testCloudConnector:
+        if not testCloudConnector.testCloudConnector(source_api=source_api, target_api=target_api,
+                                                     simulate=args.simulate):
+            print('Cloud Connector test failed')
             quit(1)
 
     quit(0)
