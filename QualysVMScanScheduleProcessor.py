@@ -1,7 +1,6 @@
 import xml.etree.ElementTree as ET
 import QualysAPI
 
-# TODO Cloud Perimeter Scan jobs need to be handled here, they need different parameters
 
 def responseHandler(resp: ET.ElementTree):
     return True
@@ -34,6 +33,7 @@ def _safefindlist(xml: ET.Element, findstr: str):
     else:
         return []
 
+
 def convertScheduledScan(scan: ET.Element):
     requeststr = ''
     scan_title = scan.find('TITLE').text
@@ -47,6 +47,10 @@ def convertScheduledScan(scan: ET.Element):
     )
 
     appliance_name = _safefind(scan, 'ISCANNER_NAME')
+    use_external_appliance = False
+    if appliance_name == 'External Scanner':
+        appliance_name = ''
+        use_external_appliance = True
 
     # Targets - Tags or Asset Groups
     if scan.find('ASSET_TAGS'):
@@ -72,6 +76,8 @@ def convertScheduledScan(scan: ET.Element):
                                                                       tag_exclude_selector)
         if scanners_in_tagset == '1':
             requeststr = '%s&scanners_in_tagset=1' % requeststr
+        elif use_external_appliance:
+            requeststr = '%s&iscanner_id=0' % requeststr
         else:
             requeststr = '%s&iscanner_name=%s' % (requeststr, appliance_name)
     else:
@@ -92,6 +98,8 @@ def convertScheduledScan(scan: ET.Element):
                                                                           exclude_ip_per_scan)
         if scanners_in_ag == '1':
             requeststr = '%s&scanners_in_ag=1' % requeststr
+        elif use_external_appliance:
+            requeststr = '%s&iscanner_id=0'
         else:
             requeststr = '%s&iscanner_name=%s' % (requeststr, appliance_name)
 
@@ -166,6 +174,31 @@ def convertScheduledScan(scan: ET.Element):
         ec2_endpoint = scan.find('EC2_INSTANCE/EC2_ENDPOINT').text
         requeststr = '%s&connector_name=%s&ec2_endpoint=%s' % (requeststr, connector_name, ec2_endpoint)
 
+    # Cloud Perimeter Scan
+    if scan.find('.//SCAN_TYPE') is not None:
+        if scan.find('.//SCAN_TYPE').text == 'Cloud Perimeter':
+            # Add in the cloud perimeter-specific stuff here
+            module = 'vm'
+            cloud_provider = 'aws'
+            cloud_service = 'ec2'
+            include_lb_from_connector = '1'
+            schedule = 'recurring'
+            if scan.find('.//ELB_DNS') is not None:
+                dnslist = []
+                for dns in scan.findall('.//ELB_DNS/DNS'):
+                    dnslist.append(dns.text)
+                requeststr = '%s&elb_dns=%s' % (requeststr, ','.join(dnslist))
+
+            platform_type = ''
+            if scan.find('.//VPC_SCOPE').text == 'All':
+                requeststr = '%s&platform_type=vpc_peered&region=%s' % (requeststr,
+                                                                        scan.find('.//CLOUD_TARGET/REGION/CODE').text)
+            if scan.find('.//VPC_SCOPE').text == 'Selected':
+                requeststr = '%s&platform_type=selected_vpc&vpc_id=%s' % (requeststr,
+                                                                     scan.find('CLOUD_TARGET/VPC_LIST/VPC/UUID').text)
+            if scan.find('.//VPC_SCOPE').text == 'None':
+                requeststr = '%s&platform_type=classic&region=%s' % (requeststr,
+                                                                     scan.find('.//CLOUD_TARGET_REGION/CODE').text)
     return requeststr
 
 def createScheduledScan(target_api: QualysAPI.QualysAPI, requeststr: str):
