@@ -1,5 +1,7 @@
 Authentication Records
-Compliance Policies - There but very broken
+    We can create authentication records but only without passwords, there is no method by which
+    passwords can be extracted from the platform.  To provide this means providing a list of passwords in plain text,
+    which is not ideal but a useful stop-gap until decryption is added, allowing the input file to be AES-256 encrypted
+Compliance Policies
+    There but very broken
 IPv6 Mappings
-
-
