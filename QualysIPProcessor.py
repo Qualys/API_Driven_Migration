@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 import QualysAPI
 
 
-def getIPTrackedVM(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI):
+def getIPTrackedVM(source_api: QualysAPI.QualysAPI):
     fullurl = '%s/api/2.0/fo/asset/ip/?action=list&compliance_enabled=0&certview_enabled=0&tracking_method=IP' \
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
@@ -27,7 +27,7 @@ def createIPTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
 def getIPTrackedPC(source_api: QualysAPI.QualysAPI):
     fullurl = '%s/api/2.0/fo/asset/ip/?action=list&compliance_enabled=1&certview_enabled=0&tracking_method=IP' \
             % source_api.server
-    ip_list = target_api.makeCall(url=fullurl)
+    ip_list = source_api.makeCall(url=fullurl)
     ip_set = ip_list.find('.//IP_SET')
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=IP&enable_vm=0&enable_pc=1&ips='
 
@@ -71,7 +71,7 @@ def createDNSTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
 def getDNSTrackedPC(source_api: QualysAPI.QualysAPI):
     fullurl = '%s/api/2.0/fo/asset/ip/?action=list&compliance_enabled=1&certview_enabled=0&tracking_method=DNS' \
             % source_api.server
-    ip_list = target_api.makeCall(url=fullurl)
+    ip_list = source_api.makeCall(url=fullurl)
     ip_set = ip_list.find('.//IP_SET')
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=DNS&enable_vm=0&enable_pc=1&ips='
 
@@ -115,7 +115,7 @@ def createNETBIOSTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
 def getNETBIOSTrackedPC(source_api: QualysAPI.QualysAPI):
     fullurl = '%s/api/2.0/fo/asset/ip/?action=list&compliance_enabled=1&certview_enabled=0&tracking_method=NETBIOS' \
             % source_api.server
-    ip_list = target_api.makeCall(url=fullurl)
+    ip_list = source_api.makeCall(url=fullurl)
     ip_set = ip_list.find('.//IP_SET')
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=NETBIOS&enable_vm=0&enable_pc=1&ips='
 
