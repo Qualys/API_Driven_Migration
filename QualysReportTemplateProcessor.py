@@ -22,9 +22,9 @@ def getReportTemplates(source_api: QualysAPI.QualysAPI):
 
 def createReportTemplates(target_api: QualysAPI.QualysAPI, templates: list):
     scanurl = '%s/api/2.0/fo/report/template/scan/?action=create&report_format=xml' % target_api.server
-    pciurl = '%s/api/2.0/fo/report/template/pciscan/?action=create&report_format=xml' % source_api.server
-    patchurl = '%s/api/2.0/fo/report/template/patch/?action=create&report_format=xml' % source_api.server
-    mapurl = '%s/api/2.0/fo/report/template/mapscan/?action=create&report_format=xml' % source_api.server
+    pciurl = '%s/api/2.0/fo/report/template/pciscan/?action=create&report_format=xml' % target_api.server
+    patchurl = '%s/api/2.0/fo/report/template/patch/?action=create&report_format=xml' % target_api.server
+    mapurl = '%s/api/2.0/fo/report/template/mapscan/?action=create&report_format=xml' % target_api.server
 
     scanpayload = ET.tostring(templates[0], method='html', encoding='utf-8').decode()
     pcipayload = ET.tostring(templates[1], method='html', encoding='utf-8').decode()

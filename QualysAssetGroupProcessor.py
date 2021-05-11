@@ -85,7 +85,7 @@ def convertAssetGroups(aglist: ET.Element, netmap: dict = None, appliancemap: di
                       ag.find('TITLE').text)
                 return None
             newapp = appliancemap[ag.find('DEFAULT_APPLIANCE_ID').text]
-            addurl = '%s&default_appliance_id=%s' % (addurs, newapp)
+            addurl = '%s&default_appliance_id=%s' % (addurl, newapp)
 
         if ag.find('APPLIANCE_IDS') is not None:
             if appliancemap is None:

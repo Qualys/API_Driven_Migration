@@ -6,9 +6,9 @@ import QualysApplianceProcessor
 def testAppliances(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, appliances: list = None,
                    simulate: bool = False):
     if appliances is not None:
-        appls = '&ids=%s' (','.join(appliances))
+        appls = '&ids=%s' % (','.join(appliances))
     else:
-        appls = ''
+        appls = []
 
     appl_list = QualysApplianceProcessor.getAppliances(source_api=source_api, appliances=appls)
 
