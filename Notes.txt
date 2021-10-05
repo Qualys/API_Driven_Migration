@@ -1,8 +1,9 @@
 Authentication Records
     We can create authentication records but only without passwords, there is no method by which
     passwords can be extracted from the platform.  To provide this means providing a list of passwords in plain text,
-    which is not ideal but a useful stop-gap until decryption is added, allowing the input file to be AES-256 encrypted
+    which is not ideal.
 Compliance Policies
-    There but very broken
+    QualysCompliancePolicyProcessor will export policies using the Export Policy API, however these policies do not include scope information, so any
+    tag or asset group assignments will be lost during the export.
 IPv6 Mappings
     Not implemented
