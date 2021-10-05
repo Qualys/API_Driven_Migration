@@ -1,10 +1,10 @@
 import xml.etree.ElementTree as ET
-import QualysVMOptionProfileProcessor
+import QualysOptionProfileProcessor
 import QualysAPI
 
 
 def testOptionProfiles(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):
-    optionprofiles = QualysVMOptionProfileProcessor.exportOptionProfiles(source_api=source_api)
+    optionprofiles = QualysOptionProfileProcessor.exportOptionProfiles(source_api=source_api)
     if optionprofiles is None:
         return False
 
@@ -17,4 +17,4 @@ def testOptionProfiles(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.Qu
         print('================================================================================')
         return True
     else:
-        return QualysVMOptionProfileProcessor.importOptionProfiles(target_api=target_api, optionprofiles=optionprofiles)
+        return QualysOptionProfileProcessor.importOptionProfiles(target_api=target_api, optionprofiles=optionprofiles)

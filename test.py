@@ -7,7 +7,7 @@ import testIPs
 import testDomains
 import testNetworks
 import testAssetGroups
-import testVMOptionProfiles
+import testOptionProfiles
 import testReportTemplates
 import testSearchLists
 import testAppliance
@@ -138,8 +138,8 @@ if __name__ == '__main__':
 
     # Option Profiles
     if args.testOptionProfiles:
-        if not testVMOptionProfiles.testOptionProfiles(source_api=source_api, target_api=target_api,
-                                                       simulate=args.simulate):
+        if not testOptionProfiles.testOptionProfiles(source_api=source_api, target_api=target_api,
+                                                     simulate=args.simulate):
             print('Option Profiles test failed')
             quit(1)
 
