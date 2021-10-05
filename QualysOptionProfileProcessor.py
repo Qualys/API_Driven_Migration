@@ -11,7 +11,7 @@ def responseHandler(response):
 
 
 def exportOptionProfiles(source_api: QualysAPI.QualysAPI):
-    fullurl = '%s/api/2.0/fo/subscription/option_profile/?action=export&include_system_option_profiles=1' %\
+    fullurl = '%s/api/2.0/fo/subscription/option_profile/?action=export&include_system_option_profiles=0' %\
               source_api.server
     response = source_api.makeCall(url=fullurl, method='GET')
     if not responseHandler(response):
