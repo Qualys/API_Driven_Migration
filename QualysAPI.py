@@ -144,8 +144,6 @@ class QualysAPI:
         if self.debug:
             print("QualysAPI.makeCall: Request Headers")
             print("%s" % str(rheaders))
-            print("QualysAPI.makeCall: URL")
-            print("%s" % url)
             print("QualysAPI.makeCall: Response Headers...")
             print("%s" % str(resp.headers))
             print("QualysAPI.makeCall: Response text...")
