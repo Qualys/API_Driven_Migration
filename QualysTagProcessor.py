@@ -68,7 +68,7 @@ def getTags(api: QualysAPI.QualysAPI, filterlist=None):
 
 def pruneSystemTags(tags: ET.Element):
     print('QualysTagProcessor: Pruning system-generated tags... ', end='')
-    for n in ['Business Units', 'Asset Groups', 'Malware Domain Assets']:
+    for n in ['Business Units', 'Asset Groups']:
         # Find named system tag
         t = tags.find('.//*[name="%s"]' % n)
         if t is None:
@@ -86,6 +86,19 @@ def pruneSystemTags(tags: ET.Element):
             parent.remove(fulltag)
         # Finally remove the system tag
         tags.remove(t)
+    t = tags.find('.//*[name="Malware Domain Assets"]')
+    if t is None:
+        print("INFO: Malware Domain Assets not found")
+    else:
+        for ts in t.findall('.//*TagSimple'):
+            # get the ID
+            tagid = ts.find('id').text
+            # find the full tag with that ID
+            fulltag = tags.find('.//Tag/[id="%s"]' % tagid)
+            # get that tag's parent
+            parent = tags.find('.//Tag/[id="%s"]/..' % tagid)
+            # remove that tag from its parent
+            parent.remove(fulltag)
     print('Success')
     return tags
 
