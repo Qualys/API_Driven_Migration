@@ -59,10 +59,10 @@ if __name__ == '__main__':
 
     source_url = ''
     if args.source_qualyspod == 'PCP':
-        if args.source_pcpurl is None:
+        if args.source_apiurl is None:
             print('FATAL: qualyspod is PCP but apiurl is not specified')
             sys.exit(1)
-        source_url = args.source_pcpurl
+        source_url = args.source_apiurl
     else:
         source_url = QualysAPI.QualysAPI.podPicker(args.source_qualyspod)
         if source_url == 'invalid':
