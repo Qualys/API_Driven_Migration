@@ -2,8 +2,13 @@ Authentication Records
     We can create authentication records but only without passwords, there is no method by which
     passwords can be extracted from the platform.  To provide this means providing a list of passwords in plain text,
     which is not ideal.
+
 Compliance Policies
-    QualysCompliancePolicyProcessor will export policies using the Export Policy API, however these policies do not include scope information, so any
-    tag or asset group assignments will be lost during the export.
+    QualysCompliancePolicyProcessor will export policies using the Export Policy API, however these policies do not
+    include scope information, so any tag or asset group assignments will be lost during the export.
+
 IPv6 Mappings
     Not implemented
+
+Subscription Configuration
+    The QualysSubscriptionProcessor.py script includes API calls which can only be made as the Primary Manager user
