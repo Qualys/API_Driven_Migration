@@ -3,7 +3,11 @@ import xml.etree.ElementTree as ET
 import QualysAPI
 
 # Appliance map should be in the format:
+#   { source_appliance_id: target_appliance_id }
+#
+# When reading from a file, the file should be in the format:
 #   source_appliance_id, target_appliance_id
+
 
 def readApplianceMap(inputfile: str):
     appliancemap = {}
@@ -16,6 +20,7 @@ def readApplianceMap(inputfile: str):
 
     return appliancemap
 
+
 def generateApplianceMap(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI):
     appliancemap = {}
     srcurl = '%s/api/2.0/fo/appliance/?action=list' % source_api.server
@@ -25,6 +30,20 @@ def generateApplianceMap(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.
 
     sourcelist = sourceresp.find('.//APPLIANCE_LIST')
     targetlist = targetresp.find('.//APPLIANCE_LIST')
+
+    if sourcelist is None:
+        print('QualysApplianceInput.generateApplianceMap ERROR: Unable to obtain appliance list from source '
+              'subscription')
+        if source_api.debug:
+            print(ET.tostring(sourceresp, method='xml', encoding='utf-8').decode())
+        return None
+
+    if targetlist is None:
+        print('QualysApplianceInput.generateApplianceMap Error: Unable to obtain appliance list from target '
+              'subscription')
+        if target_api.debug:
+            print(ET.tostring(targetresp, method='xml', encoding='utf-8').decode())
+        return None
 
     for sourceappliance in sourcelist.findall('APPLIANCE'):
         srcappliancename = sourceappliance.find('NAME').text
