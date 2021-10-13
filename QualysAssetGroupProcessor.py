@@ -31,16 +31,17 @@ def convertAssetGroups(aglist: ET.Element, netmap: dict = None, appliancemap: di
     for ag in aglist.findall('ASSET_GROUP'):
         if ag.find('TITLE').text == 'All':
             continue
-        addurl = '%s&title=%s&cvss_enviro_cdp=%scvss_enviro_td=%scvss_enviro_cr=%scvss_enviro_ir=%scvss_enviro_ar=%s' \
-                 'comments=%s' %\
+        addurl = '%s&title=%s&cvss_enviro_cdp=%scvss_enviro_td=%scvss_enviro_cr=%scvss_enviro_ir=%scvss_enviro_ar=%s' %\
                  (baseurl,
                   ag.find('TITLE').text,
                   ag.find('CVSS_ENVIRO_CDP').text,
                   ag.find('CVSS_ENVIRO_TD').text,
                   ag.find('CVSS_ENVIRO_CR').text,
                   ag.find('CVSS_ENVIRO_IR').text,
-                  ag.find('CVSS_ENVIRO_AR').text,
-                  ag.find('COMMENTS').text)
+                  ag.find('CVSS_ENVIRO_AR').text)
+
+        if ag.find('COMMENTS') is not None:
+            addurl = '%s&comments=%s' % (addurl, ag.find('COMMENTS').text)
 
         if ag.find('IP_SET') is not None:
             ipset = ag.find('IP_SET')
