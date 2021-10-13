@@ -73,8 +73,8 @@ def convertAssetGroups(aglist: ET.Element, netmap: dict = None, appliancemap: di
         if ag.find('NETWORK_ID') is not None:
             if not ag.find('NETWORK_ID').text == '0':
                 if netmap is None:
-                    print('FATAL: Asset Group %s is assigned to a non-zero Network object but no network map is '
-                          'provided' % ag.find('TITLE').text)
+                    print('FATAL: Asset Group %s is assigned to a non-zero Network object but network map is not '
+                          'provided or is empty' % ag.find('TITLE').text)
                     return None
                 newnetid = netmap[ag.find('NETWORK_ID').text]
                 addurl = '%s&network_id=%s' % (addurl, newnetid)

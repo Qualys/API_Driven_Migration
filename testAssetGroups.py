@@ -4,11 +4,16 @@ import QualysNetworkProcessor
 import QualysApplianceInput
 
 
-def testAssetGroups(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):
-    netmap = QualysNetworkProcessor.generateNetworkMap(source_api=source_api, target_api=target_api)
-    if not netmap:
-        print('FATAL: Could not generate Networks map')
-        return False
+def testAssetGroups(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False,
+                    networks: bool = True):
+    if networks:
+        netmap = QualysNetworkProcessor.generateNetworkMap(source_api=source_api, target_api=target_api)
+        if not netmap:
+            print('FATAL: Could not generate Networks map')
+            return False
+    else:
+        netmap = None
+
     appliancemap = QualysApplianceInput.generateApplianceMap(source_api=source_api, target_api=target_api)
     if not appliancemap:
         print('FATAL: Could not generate Appliance map')
