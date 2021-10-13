@@ -135,6 +135,9 @@ class QualysAPI:
         # Prepare the request for sending
         prepped_req = self.sess.prepare_request(r)
         # If the proxy is enabled, send via the proxy
+        if self.debug:
+            print("QualysAPI.makeCall: RequestURL")
+            print(url)
         if self.enableProxy:
             resp = self.sess.send(prepped_req, proxies={'https': self.proxy})
         # Otherwise send direct
@@ -144,8 +147,6 @@ class QualysAPI:
         if self.debug:
             print("QualysAPI.makeCall: Request Headers")
             print("%s" % str(rheaders))
-            print("QualysAPI.makeCall: URL")
-            print("%s" % url)
             print("QualysAPI.makeCall: Response Headers...")
             print("%s" % str(resp.headers))
             print("QualysAPI.makeCall: Response text...")
