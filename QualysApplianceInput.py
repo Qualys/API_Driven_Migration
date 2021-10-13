@@ -48,7 +48,7 @@ def generateApplianceMap(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.
     for sourceappliance in sourcelist.findall('APPLIANCE'):
         srcappliancename = sourceappliance.find('NAME').text
         srcapplianceid = sourceappliance.find('ID').text
-        tgtappliance = targetlist.find('.//[NAME="%s"]/..' % srcappliancename)
+        tgtappliance = targetlist.find('.//*[NAME="%s"]/..' % srcappliancename)
         if tgtappliance is None:
             print('ERROR: Unable to find Appliance %s in target subscription')
             return None
