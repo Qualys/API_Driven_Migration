@@ -101,7 +101,7 @@ def convertAssetGroups(aglist: ET.Element, netmap: dict = None, appliancemap: di
                 print('FATAL: Asset Group %s has scanner appliances assigned but no appliance map is provided' %
                       ag.find('TITLE').text)
                 return None
-            addurl = '%s&appliance_ids=%s' % (addurl, [x.strip() for x in ag.find('APPLIANCE_IDS').text.split(',')])
+            addurl = '%s&appliance_ids=%s' % (addurl, ag.find('APPLIANCE_IDS').text)
 
         urllist.append(addurl)
     return urllist
