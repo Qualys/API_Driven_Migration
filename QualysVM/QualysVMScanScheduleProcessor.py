@@ -68,7 +68,7 @@ def convertScheduledScan(scan: ET.Element):
             scanners_in_tagset = '1'
 
         requeststr = '%s&tag_set_by=name&target_from=tags&tag_include_selector=%s&tag_set_include=%s' \
-                     '&use_ip_nt_range_tag=%s&tag_set_exclude=%s&tag_exclude_selector=%s' % (requeststr,
+                     '&use_ip_nt_range_tags=%s&tag_set_exclude=%s&tag_exclude_selector=%s' % (requeststr,
                                                                                              tag_include_selector,
                                                                                              tag_set_include,
                                                                                              use_ip_nt_range_tag,
