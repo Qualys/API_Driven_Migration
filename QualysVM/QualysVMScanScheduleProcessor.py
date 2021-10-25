@@ -35,7 +35,7 @@ def _safefindlist(xml: ET.Element, findstr: str):
 
 
 def convertScheduledScan(scan: ET.Element):
-    requeststr = ''
+    requeststr = 'api/2.0/fo/schedule/scan/?action=create'
     scan_title = scan.find('TITLE').text
     active = '1'
     option_profile_title = _safefind(scan, 'OPTION_PROFILE/TITLE')
