@@ -113,7 +113,7 @@ def convertScheduledScan(scan: ET.Element):
     sched = scan.find('SCHEDULE')
     if sched.find('WEEKLY') is not None:
         frequency_weeks = sched.find('WEEKLY').get('frequency_weeks')
-        weekdays = sched.find('WEEKLY').get('weekdays)')
+        weekdays = sched.find('WEEKLY').get('weekdays')
         requeststr = '%s&occurrence=weekly&frequency_weeks=%s&weekdays=%s' % (requeststr, frequency_weeks, weekdays)
     elif sched.find('DAILY') is not None:
         frequency_days = sched.find('DAILY').get('frequency_days')
