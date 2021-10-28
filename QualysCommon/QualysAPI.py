@@ -116,6 +116,7 @@ class QualysAPI:
             'US03': 'https://qualysapi.qg3.apps.qualys.com',
             'EU01': 'https://qualysapi.qualys.eu',
             'EU02': 'https://qualysapi.qg2.apps.qualys.eu',
+            'UK01': 'https://qualysapi.qg1.apps.qualys.co.uk',
             'IN01': 'https://qualysapi.qg1.apps.qualys.in'
         }
         return switcher.get(pod, "invalid")
@@ -138,6 +139,8 @@ class QualysAPI:
         if self.debug:
             print("QualysAPI.makeCall: RequestURL")
             print(url)
+            print("QualysAPI.makeCall: RequestBody")
+            print(payload)
         if self.enableProxy:
             resp = self.sess.send(prepped_req, proxies={'https': self.proxy})
         # Otherwise send direct
