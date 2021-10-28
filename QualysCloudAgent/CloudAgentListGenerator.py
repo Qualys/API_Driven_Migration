@@ -101,6 +101,26 @@ def createActivationKey(api: QualysAPI.QualysAPI, activationKey: dict):
     return resp
 
 
+def compareActivationKeys(src_key: dict, tgt_key: dict):
+    # Compare names
+    if src_key["AgentActKey"]["name"] != tgt_key["AgentActKey"]["name"]:
+        return False
+
+    # Compare module activations
+    src_mods = []
+    tgt_mods = []
+    for mod in src_key["AgentActKey"]["modules"]["list"]:
+        src_mods.append(mod["ActivationKeyModule"]["license"])
+    for mod in tgt_key["AgentActKey"]["modules"]["list"]:
+        tgt_mods.append(mod["ActivationKeyModule"]["license"])
+
+    for mod in src_mods:
+        if mod not in tgt_mods:
+            return False
+
+    return True
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('source_username', help='API Username in source subscription')
@@ -125,3 +145,7 @@ if __name__ == '__main__':
 
     tgt_api = QualysAPI.QualysAPI(svr=args.target_api_url, usr=args.target_username, passwd=args.target_password,
                                   proxy=args.proxyurl, enableProxy=args.proxyenable, debug=args.debug)
+
+    src_keys = getActivationKeys(api=src_api)
+    tgt_keys = getActivationKeys(api=tgt_api)
+
