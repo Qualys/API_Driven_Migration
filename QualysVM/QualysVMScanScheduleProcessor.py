@@ -59,8 +59,12 @@ def convertScheduledScan(scan: ET.Element):
         tag_include_selector = _safefind(scan, 'ASSET_TAGS/TAG_INCLUDE_SELECTOR')
         tag_set_include = _safefind(scan, 'ASSET_TAGS/TAG_SET_INCLUDE')
         use_ip_nt_range_tag = _safefind(scan, 'ASSET_TAGS/USE_IP_NT_RANGE_TAGS')
-        tag_set_exclude = _safefind(scan, 'ASSET_TAGS/TAG_SET_EXCLUDE')
-        tag_exclude_selector = _safefind(scan, 'ASSET_TAGS/TAG_EXCLUDE_SELECTOR')
+        if _safefind(scan, 'ASSET_TAGS/TAG_SET_EXCLUDE') != '':
+            tag_set_exclude = _safefind(scan, 'ASSET_TAGS/TAG_SET_EXCLUDE')
+            tag_exclude_selector = _safefind(scan, 'ASSET_TAGS/TAG_EXCLUDE_SELECTOR')
+        else:
+            tag_set_exclude = None
+            tag_exclude_selector = None
 
         scanners_in_tagset = '0'
         if appliance_name == 'All Scanners in TagSet':
@@ -68,12 +72,14 @@ def convertScheduledScan(scan: ET.Element):
             scanners_in_tagset = '1'
 
         requeststr = '%s&tag_set_by=name&target_from=tags&tag_include_selector=%s&tag_set_include=%s' \
-                     '&use_ip_nt_range_tags=%s&tag_set_exclude=%s&tag_exclude_selector=%s' % (requeststr,
-                                                                                              tag_include_selector,
-                                                                                              tag_set_include,
-                                                                                              use_ip_nt_range_tag,
-                                                                                              tag_set_exclude,
-                                                                                              tag_exclude_selector)
+                     '&use_ip_nt_range_tags=%s' % (requeststr,
+                                                   tag_include_selector,
+                                                   tag_set_include,
+                                                   use_ip_nt_range_tag)
+        if tag_set_exclude is not None:
+            requeststr = '%s&tag_exclude_selector=%s&tag_set_exclude=%s' % (requeststr,
+                                                                            tag_exclude_selector,
+                                                                            tag_set_exclude)
         if scanners_in_tagset == '1':
             requeststr = '%s&scanners_in_tagset=1' % requeststr
         elif use_external_appliance:
@@ -99,7 +105,8 @@ def convertScheduledScan(scan: ET.Element):
         if scanners_in_ag == '1':
             requeststr = '%s&scanners_in_ag=1' % requeststr
         elif use_external_appliance:
-            requeststr = '%s&iscanner_id=0'
+            # When no appliance is specified, the default is to use External Appliance, so we do nothing here
+            pass
         else:
             requeststr = '%s&iscanner_name=%s' % (requeststr, appliance_name)
 
@@ -107,7 +114,7 @@ def convertScheduledScan(scan: ET.Element):
     sched = scan.find('SCHEDULE')
     if sched.find('WEEKLY') is not None:
         frequency_weeks = sched.find('WEEKLY').get('frequency_weeks')
-        weekdays = sched.find('WEEKLY').get('weekdays)')
+        weekdays = sched.find('WEEKLY').get('weekdays')
         requeststr = '%s&occurrence=weekly&frequency_weeks=%s&weekdays=%s' % (requeststr, frequency_weeks, weekdays)
     elif sched.find('DAILY') is not None:
         frequency_days = sched.find('DAILY').get('frequency_days')
