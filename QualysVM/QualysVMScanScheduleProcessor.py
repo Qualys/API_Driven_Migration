@@ -105,7 +105,8 @@ def convertScheduledScan(scan: ET.Element):
         if scanners_in_ag == '1':
             requeststr = '%s&scanners_in_ag=1' % requeststr
         elif use_external_appliance:
-            requeststr = '%s&iscanner_id=0'
+            # When no appliance is specified, the default is to use External Appliance, so we do nothing here
+            pass
         else:
             requeststr = '%s&iscanner_name=%s' % (requeststr, appliance_name)
 
