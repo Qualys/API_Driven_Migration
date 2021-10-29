@@ -27,6 +27,26 @@ def _safefind(xml: ET.Element, findstr: str):
         return ''
 
 
+def _getDays(daynums: str):
+    dayswitch = {
+        '0': 'sunday',
+        '1': 'monday',
+        '2': 'tuesday',
+        '3': 'wednesday',
+        '4': 'thursday',
+        '5': 'friday',
+        '6': 'saturday'
+    }
+    days = ''
+    for day in daynums.split(','):
+        day = day.strip()
+        if days == '':
+            days = dayswitch.get(day, '')
+        else:
+            days = '%s,%s' % (days, dayswitch.get(day, None))
+    return days
+
+
 def _safefindlist(xml: ET.Element, findstr: str):
     if xml.find('%s' % findstr) is not None:
         return xml.findall(findstr)
@@ -115,6 +135,7 @@ def convertScheduledScan(scan: ET.Element):
     if sched.find('WEEKLY') is not None:
         frequency_weeks = sched.find('WEEKLY').get('frequency_weeks')
         weekdays = sched.find('WEEKLY').get('weekdays')
+        weekdays = _getDays(weekdays)
         requeststr = '%s&occurrence=weekly&frequency_weeks=%s&weekdays=%s' % (requeststr, frequency_weeks, weekdays)
     elif sched.find('DAILY') is not None:
         frequency_days = sched.find('DAILY').get('frequency_days')
