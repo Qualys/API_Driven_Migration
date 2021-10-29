@@ -91,11 +91,14 @@ def convertScheduledScan(scan: ET.Element):
             appliance_name = ''
             scanners_in_tagset = '1'
 
-        requeststr = '%s&tag_set_by=name&target_from=tags&tag_include_selector=%s&tag_set_include=%s' \
-                     '&use_ip_nt_range_tags=%s' % (requeststr,
-                                                   tag_include_selector,
-                                                   tag_set_include,
-                                                   use_ip_nt_range_tag)
+        requeststr = '%s&tag_set_by=name&target_from=tags&tag_include_selector=%s&tag_set_include=%s' % \
+                     (requeststr,
+                      tag_include_selector,
+                      tag_set_include)
+
+        if use_ip_nt_range_tag is not None or use_ip_nt_range_tag != '':
+            requeststr = '%s&use_ip_nt_range_tags=%s' % (requeststr, use_ip_nt_range_tag)
+
         if tag_set_exclude is not None:
             requeststr = '%s&tag_exclude_selector=%s&tag_set_exclude=%s' % (requeststr,
                                                                             tag_exclude_selector,
