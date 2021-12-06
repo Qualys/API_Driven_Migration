@@ -36,3 +36,19 @@ def importPolicy(target_api: QualysAPI.QualysAPI, policyname: str, policy: str):
         print('QualysCompliancePolicyProcessor.importPolicy failed')
         return None
     return resp
+
+
+def addAssetGroups(target_api: QualysAPI.QualysAPI, policyid: str, asset_group_ids: str, evaluate: bool = False):
+    fullurl = '%s/api/2.0/fo/compliance/policy/?action=add_asset_group_ids' % target_api.server
+    if evaluate:
+        fullurl = '%s&evaluate_now=1' % fullurl
+    else:
+        fullurl = '%s&evaluate_now=0' % fullurl
+
+    fullurl = '%s&id=%s&asset_group_ids=%s' % (fullurl, policyid, asset_group_ids)
+
+    resp = target_api.makeCall(url=fullurl, method='POST')
+    if not responseHandler(resp):
+        print('QualysComplianceProcessor.addAssetGroups failed')
+        return None
+    return resp
