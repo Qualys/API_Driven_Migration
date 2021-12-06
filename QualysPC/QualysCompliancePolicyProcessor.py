@@ -39,7 +39,7 @@ def importPolicy(target_api: QualysAPI.QualysAPI, policyname: str, policy: str):
 
 
 def addAssetGroups(target_api: QualysAPI.QualysAPI, policyid: str, asset_group_ids: str, evaluate: bool = False):
-    fullurl = '%s/api/2.0/fo/compliance/policy/?action=add_asset_group_id' % target_api.server
+    fullurl = '%s/api/2.0/fo/compliance/policy/?action=add_asset_group_ids' % target_api.server
     if evaluate:
         fullurl = '%s&evaluate_now=1' % fullurl
     else:
