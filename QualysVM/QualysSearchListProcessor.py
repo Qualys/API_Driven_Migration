@@ -83,7 +83,7 @@ def createDynamicSearchList(target_api: QualysAPI.QualysAPI, searchlist: ET.Elem
     # criteria = searchlist.find('CRITERIA')
     criteria_map = {
         'vuln_title': 'VULNERABILITY_TITLE',
-        'not_vuln_TITLE': 'VULNERABILITY_TITLE',
+        'not_vuln_title': 'VULNERABILITY_TITLE',
         'discovery_methods': 'DISCOVERY_METHOD',
         'auth_types': 'AUTHENTICATION_TYPE',
         'user_configuration': 'USER_CONFIGURATION',
@@ -126,9 +126,9 @@ def createDynamicSearchList(target_api: QualysAPI.QualysAPI, searchlist: ET.Elem
     }
 
     globalsl = '0'
-    if searchlist.find('GLOBAL') == 'Yes':
+    if searchlist.find('GLOBAL').text == 'Yes':
         globalsl = '1'
-    fullurl = '%s/api/2.0/fo/search_list/dynamic/?action=create&title=%s&global=%s&%s' % (
+    fullurl = '%s/api/2.0/fo/qid/search_list/dynamic/?action=create&title=%s&global=%s&%s' % (
         target_api.server,
         parse.quote(searchlist.find('TITLE').text),
         globalsl,
@@ -151,6 +151,39 @@ def createDynamicSearchList(target_api: QualysAPI.QualysAPI, searchlist: ET.Elem
             continue
         if criteria_map[param] == 'PUBLISHED' and criteria.find('PUBLISHED') is not None:
             fullurl = '%s&%s' % (fullurl, convertModifiedFilters(criteria.find('PUBLISHED').text, 'published'))
+            continue
+        if criteria_map[param] == 'DISCOVERY_METHOD':
+            if criteria.find('DISCOVERY_METHOD').text == 'All':
+                fullurl = '%s&%s' % (fullurl, 'discovery_methods=ALL')
+            else:
+                dm = criteria.find('DISCOVERY_METHOD').text
+                if dm.find(' and ') >= 0:
+                    dmlist = dm.split(' and ')
+                    dmstr = ','.join(dmlist)
+                else:
+                    dmstr = dm
+                fullurl = '%s&%s' % (fullurl, 'discovery_methods=%s' % dmstr)
+            continue
+        if criteria_map[param] == 'PATCH_AVAILABLE' and criteria.find('PATCH_AVAILABLE') is not None:
+            if criteria.find('PATCH_AVAILABLE').text == 'Yes':
+                fullurl = '%s&%s' % (fullurl, 'patch_available=1')
+            else:
+                fullurl = '%s&%s' % (fullurl, 'patch_available=0')
+            continue
+        if criteria_map[param] == 'VIRTUAL_PATCH_AVAILABLE' and criteria.find('VIRTUAL_PATCH_AVAILABLE') is not None:
+            if criteria.find('VIRTUAL_PATCH_AVAILABLE').text == 'Yes':
+                fullurl = '%s&%s' % (fullurl, 'virtual_patch_available=1')
+            else:
+                fullurl = '%s&%s' % (fullurl, 'virtual_patch_available=0')
+            continue
+        if criteria_map[param] == 'QUALYS_TOP_20' and criteria.find('QUALYS_TOP_20') is not None:
+            toplists = []
+            for toplist in criteria.find('QUALYS_TOP_20').text.split(','):
+                if toplist == 'Top Internal 10':
+                    toplists.append('Internal_10')
+                if toplist == 'Top External 10':
+                    toplists.append('External_10')
+            fullurl = '%s&qualys_top_lists=%s' % (fullurl, ','.join(toplists))
             continue
         if criteria.find('%s' % criteria_map[param]) is not None:
             if param[0:4] == 'not_':
@@ -189,7 +222,7 @@ def createStaticSearchList(target_api: QualysAPI.QualysAPI, searchlist: ET.Eleme
     for qid in searchlist.findall('.//QID'):
         qidlist.add(qid.text)
 
-    fullurl = '%s/api/2.0/fo/search_list/static/?action=create&title=%s&qids=%s&global=%s&comments=%s' % (
+    fullurl = '%s/api/2.0/fo/qid/search_list/static/?action=create&title=%s&qids=%s&global=%s&comments=%s' % (
         target_api.server,
         title,
         ','.join(qidlist),
