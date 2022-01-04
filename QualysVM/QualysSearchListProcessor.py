@@ -15,7 +15,7 @@ def getStaticSearchLists(source_api: QualysAPI.QualysAPI, ids: str = None):
     if not responseHandler(resp):
         print('QualysSearchListProcessor.getStaticSearchLists failed')
         return None
-    return resp.find('.//SEARCH_LISTS')
+    return resp.find('.//STATIC_LISTS')
 
 
 def getDynamicSearchLists(source_api: QualysAPI.QualysAPI, ids: str = None):
@@ -220,14 +220,16 @@ def createStaticSearchList(target_api: QualysAPI.QualysAPI, searchlist: ET.Eleme
     if searchlist.find('COMMENTS') is not None:
         comments = searchlist.find('COMMENTS').text
     for qid in searchlist.findall('.//QID'):
-        qidlist.add(qid.text)
+        qidlist.append(qid.text)
 
-    fullurl = '%s/api/2.0/fo/qid/search_list/static/?action=create&title=%s&qids=%s&global=%s&comments=%s' % (
+    fullurl = '%s/api/2.0/fo/qid/search_list/static/?action=create&title=%s&qids=%s&global=%s' % (
         target_api.server,
         title,
         ','.join(qidlist),
-        isGlobal,
-        comments)
+        isGlobal)
+
+    if comments != '':
+        fullurl = '%s&%s' % (fullurl, comments)
 
     if simulate:
         print('Request URL : %s' % fullurl)
