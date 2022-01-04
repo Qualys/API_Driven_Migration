@@ -28,25 +28,25 @@ def convertAssetGroups(aglist: ET.Element, netmap: dict = None, appliancemap: di
     urllist = []
     baseurl = '/api/2.0/fo/asset/group/?action=add'
 
-    for ag in aglist.findall('ASSET_GROUP'):
+    for ag in aglist.findall('.//ASSET_GROUP'):
         if ag.find('TITLE').text == 'All':
             continue
         addurl = '%s&title=%s' % (baseurl, ag.find('TITLE').text)
 
         if ag.find('CVSS_ENVIRO_CDP').text != "Not Defined":
-            addurl = '%s&cvss_enviro_cdp=%s' % (addurl, ag.find('CVSS_ENVIRO_CDP').text)
+            addurl = '%s&cvss_enviro_cdp=%s' % (addurl, ag.find('CVSS_ENVIRO_CDP').text.lower())
 
         if ag.find('CVSS_ENVIRO_TD').text != "Not Defined":
-            addurl = '%s&cvss_enviro_td=%s' % (addurl, ag.find('CVSS_ENVIRO_TD').text)
+            addurl = '%s&cvss_enviro_td=%s' % (addurl, ag.find('CVSS_ENVIRO_TD').text.lower())
 
         if ag.find('CVSS_ENVIRO_CR').text != "Not Defined":
-            addurl = '%s&cvss_enviro_cr=%s' % (addurl, ag.find('CVSS_ENVIRO_CR').text)
+            addurl = '%s&cvss_enviro_cr=%s' % (addurl, ag.find('CVSS_ENVIRO_CR').text.lower())
 
         if ag.find('CVSS_ENVIRO_IR').text != "Not Defined":
-            addurl = '%s&cvss_enviro_ir=%s' % (addurl, ag.find('CVSS_ENVIRO_IR').text)
+            addurl = '%s&cvss_enviro_ir=%s' % (addurl, ag.find('CVSS_ENVIRO_IR').text.lower())
 
         if ag.find('CVSS_ENVIRO_AR').text != "Not Defined":
-            addurl = '%s&cvss_enviro_ar=%s' % (addurl, ag.find('CVSS_ENVIRO_AR').text)
+            addurl = '%s&cvss_enviro_ar=%s' % (addurl, ag.find('CVSS_ENVIRO_AR').text.lower())
 
         if ag.find('COMMENTS') is not None:
             addurl = '%s&comments=%s' % (addurl, ag.find('COMMENTS').text)
@@ -76,7 +76,7 @@ def convertAssetGroups(aglist: ET.Element, netmap: dict = None, appliancemap: di
             netbioslist = ag.find('NETBIOS_LIST')
             netbiosnames = []
             for netbiosname in netbioslist.findall('NETBIOS'):
-                netbiosnames.append('%s' % netbiosname)
+                netbiosnames.append('%s' % netbiosname.text)
             addurl = '%s&netbios_names=%s' % (addurl, ','.join(netbiosnames))
 
         if ag.find('NETWORK_ID') is not None:
