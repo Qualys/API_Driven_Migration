@@ -1,8 +1,5 @@
 from QualysCommon import QualysAPI
 import xml.etree.ElementTree as ET
-# TODO Implement exceptions
-
-
 def getTagSet(api: QualysAPI.QualysAPI, sr: ET.Element):
     fullurl = '%s/qps/rest/2.0/search/am/tag' % api.server
     payload = ET.tostring(sr, method='html', encoding='utf-8').decode()
@@ -206,17 +203,18 @@ def handleSystemParents(target_api: QualysAPI.QualysAPI, tags: ET.Element):
 def createTags(api: QualysAPI.QualysAPI, tags: ET.Element):
     print('QualysTagProcessor: Creating Tags... ', end='')
     print('Consuming %s API calls... ' % str(len(tags.findall('./Tag'))))
-    # Wrap each root-level tag in a ServiceRequest
-    counter = 1
-    for tag in tags.findall('./Tag'):
+
+    # Remove all IDs and created/modified dates from tags
+    for tag in tags.findall('.//Tag'):
         if tag.find('id') is not None:
             tag.remove(tag.find('id'))
         if tag.find('created') is not None:
             tag.remove(tag.find('created'))
         if tag.find('modified') is not None:
             tag.remove(tag.find('modified'))
-        print('%s: ' % str(counter), end='')
 
+    # Wrap each root-level tag in a ServiceRequest
+    for tag in tags.findall('./Tag'):
         sr = ET.Element('ServiceRequest')
         data = ET.SubElement(sr, 'data')
         data.append(tag)
@@ -235,5 +233,19 @@ def createTags(api: QualysAPI.QualysAPI, tags: ET.Element):
             print('--------------------------------------------------------------------------------')
         else:
             print('Success')
-        counter += 1
     return True
+
+
+def reparentTag(tags: ET.Element, parentname: str):
+    print('QualysTagProcessor: Reparenting Tags...', end='')
+    newdata = ET.Element('data')
+    newparent = ET.SubElement(newdata, 'Tag')
+    newparentname = ET.SubElement(newparent, 'name')
+    newparentname.text = parentname
+    children = ET.SubElement(newparent, 'children')
+    childset = ET.SubElement(children, 'set')
+
+    for tag in tags.findall('./Tag'):
+        childset.append(tag)
+
+    return newdata
