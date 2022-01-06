@@ -1,7 +1,7 @@
 from QualysCommon import QualysAPI
 
 
-def getIPTrackedVM(source_api: QualysAPI.QualysAPI):
+def getIPTrackedVM(source_api: QualysAPI.QualysAPI, geturl: bool = True, getipset: bool = False):
     fullurl = '%s/api/2.0/fo/asset/ip/?action=list&compliance_enabled=0&certview_enabled=0&tracking_method=IP' \
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
@@ -14,7 +14,10 @@ def getIPTrackedVM(source_api: QualysAPI.QualysAPI):
             addurl = '%s%s' % (addurl, ip.text)
         else:
             addurl = '%s,%s' % (addurl, ip.text)
-    return addurl
+    if geturl:
+        return addurl
+    if getipset:
+        return ip_set
 
 
 def createIPTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
@@ -23,7 +26,7 @@ def createIPTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
     return resp
 
 
-def getIPTrackedPC(source_api: QualysAPI.QualysAPI):
+def getIPTrackedPC(source_api: QualysAPI.QualysAPI, geturl: bool = True, getipset: bool = False):
     fullurl = '%s/api/2.0/fo/asset/ip/?action=list&compliance_enabled=1&certview_enabled=0&tracking_method=IP' \
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
@@ -36,7 +39,10 @@ def getIPTrackedPC(source_api: QualysAPI.QualysAPI):
             addurl = '%s%s' % (addurl, ip.text)
         else:
             addurl = '%s,%s' % (addurl, ip.text)
-    return addurl
+    if geturl:
+        return addurl
+    if getipset:
+        return ip_set
 
 
 def createIPTrackedPC(target_api: QualysAPI.QualysAPI, addurl: str):
@@ -45,7 +51,7 @@ def createIPTrackedPC(target_api: QualysAPI.QualysAPI, addurl: str):
     return resp
 
 
-def getDNSTrackedVM(source_api: QualysAPI.QualysAPI):
+def getDNSTrackedVM(source_api: QualysAPI.QualysAPI, geturl: bool = True, getipset: bool = False):
     fullurl = '%s/api/2.0/fo/asset/ip/?action=list&compliance_enabled=0&certview_enabled=0&tracking_method=DNS' \
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
@@ -58,7 +64,10 @@ def getDNSTrackedVM(source_api: QualysAPI.QualysAPI):
             addurl = '%s%s' % (addurl, ip.text)
         else:
             addurl = '%s,%s' % (addurl, ip.text)
-    return addurl
+    if geturl:
+        return addurl
+    if getipset:
+        return ip_set
 
 
 def createDNSTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
@@ -67,7 +76,7 @@ def createDNSTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
     return resp
 
 
-def getDNSTrackedPC(source_api: QualysAPI.QualysAPI):
+def getDNSTrackedPC(source_api: QualysAPI.QualysAPI, geturl: bool = True, getipset: bool = False):
     fullurl = '%s/api/2.0/fo/asset/ip/?action=list&compliance_enabled=1&certview_enabled=0&tracking_method=DNS' \
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
@@ -80,7 +89,10 @@ def getDNSTrackedPC(source_api: QualysAPI.QualysAPI):
             addurl = '%s%s' % (addurl, ip.text)
         else:
             addurl = '%s,%s' % (addurl, ip.text)
-    return addurl
+    if geturl:
+        return addurl
+    if getipset:
+        return ip_set
 
 
 def createDNSTrackedPC(target_api: QualysAPI.QualysAPI, addurl: str):
@@ -89,7 +101,7 @@ def createDNSTrackedPC(target_api: QualysAPI.QualysAPI, addurl: str):
     return resp
 
 
-def getNETBIOSTrackedVM(source_api: QualysAPI.QualysAPI):
+def getNETBIOSTrackedVM(source_api: QualysAPI.QualysAPI, geturl: bool = True, getipset: bool = False):
     fullurl = '%s/api/2.0/fo/asset/ip/?action=list&compliance_enabled=0&certview_enabled=0&tracking_method=NETBIOS' \
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
@@ -102,7 +114,10 @@ def getNETBIOSTrackedVM(source_api: QualysAPI.QualysAPI):
             addurl = '%s%s' % (addurl, ip.text)
         else:
             addurl = '%s,%s' % (addurl, ip.text)
-    return addurl
+    if geturl:
+        return addurl
+    if getipset:
+        return ip_set
 
 
 def createNETBIOSTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
@@ -111,7 +126,7 @@ def createNETBIOSTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
     return resp
 
 
-def getNETBIOSTrackedPC(source_api: QualysAPI.QualysAPI):
+def getNETBIOSTrackedPC(source_api: QualysAPI.QualysAPI, geturl: bool = True, getipset: bool = False):
     fullurl = '%s/api/2.0/fo/asset/ip/?action=list&compliance_enabled=1&certview_enabled=0&tracking_method=NETBIOS' \
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
@@ -124,7 +139,10 @@ def getNETBIOSTrackedPC(source_api: QualysAPI.QualysAPI):
             addurl = '%s%s' % (addurl, ip.text)
         else:
             addurl = '%s,%s' % (addurl, ip.text)
-    return addurl
+    if geturl:
+        return addurl
+    if getipset:
+        return ip_set
 
 
 def createNETBIOSTrackedPC(target_api: QualysAPI.QualysAPI, addurl: str):
