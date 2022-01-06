@@ -115,3 +115,8 @@ def createAssetGroups(target_api: QualysAPI.QualysAPI, urllist: list):
             print('FATAL: Could not create Asset Group')
             return False
     return True
+
+
+def buildSimpleAssetGroup(name: str, ips: list):
+    url = '/api/2.0/fo/asset/group/?action=add&title=%sips=%s' % (name, ','.join(ips))
+    return url
