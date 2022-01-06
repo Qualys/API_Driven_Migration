@@ -97,7 +97,7 @@ def getDNSTrackedVM(source_api: QualysAPI.QualysAPI, geturl: bool = True, getips
         return ip_set
 
 
-def convertDNSTrackedVMSet(ip_set: ET.Element)
+def convertDNSTrackedVMSet(ip_set: ET.Element):
     baseurl = '%s/api/2.0/fo/asset/ip/?action=add&tracking_method=DNS&enable_vm=1&enable_pc=0&ips='
 
     addurl = baseurl
@@ -108,6 +108,7 @@ def convertDNSTrackedVMSet(ip_set: ET.Element)
             addurl = '%s,%s' % (addurl, ip.text)
 
     return addurl
+
 
 def createDNSTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
     fullurl = '%s%s' % (target_api.server, addurl)
@@ -181,16 +182,12 @@ def convertNETBIOSTrackedVMSet(ip_set: ET.Element):
             addurl = '%s%s' % (addurl, ip.text)
         else:
             addurl = '%s,%s' % (addurl, ip.text)
-    if geturl:
-        return addurl
-    if getipset:
-        return ip_set
 
     return addurl
 
 
 def createNETBIOSTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
-    fullurl = '%s%s' % (addurl)
+    fullurl = '%s%s' % addurl
     resp = target_api.makeCall(url=fullurl)
     return resp
 
