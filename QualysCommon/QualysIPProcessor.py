@@ -7,10 +7,12 @@ def getIPTrackedVM(source_api: QualysAPI.QualysAPI, geturl: bool = True, getipse
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
     ip_set = ip_list.find('.//IP_SET')
+    if ip_set is None:
+        return None
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=IP&enable_vm=1&enable_pc=0&ips='
 
     addurl = baseurl
-    for ip in ip_set.find('*'):
+    for ip in ip_set.findall('*'):
         if addurl == baseurl:
             addurl = '%s%s' % (addurl, ip.text)
         else:
@@ -25,7 +27,7 @@ def convertIPTrackedVMSet(ip_set: ET.Element):
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=IP&enable_vm=1&enable_pc=0&ips='
 
     addurl = baseurl
-    for ip in ip_set.find('*'):
+    for ip in ip_set.findall('*'):
         if addurl == baseurl:
             addurl = '%s%s' % (addurl, ip.text)
         else:
@@ -45,10 +47,13 @@ def getIPTrackedPC(source_api: QualysAPI.QualysAPI, geturl: bool = True, getipse
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
     ip_set = ip_list.find('.//IP_SET')
+    if ip_set is None:
+        return None
+
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=IP&enable_vm=0&enable_pc=1&ips='
 
     addurl = baseurl
-    for ip in ip_set.find('*'):
+    for ip in ip_set.findall('*'):
         if addurl == baseurl:
             addurl = '%s%s' % (addurl, ip.text)
         else:
@@ -63,7 +68,7 @@ def convertIPTrackedPCSet(ip_set: ET.Element):
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=IP&enable_vm=0&enable_pc=1&ips='
 
     addurl = baseurl
-    for ip in ip_set.find('*'):
+    for ip in ip_set.findall('*'):
         if addurl == baseurl:
             addurl = '%s%s' % (addurl, ip.text)
         else:
@@ -83,10 +88,13 @@ def getDNSTrackedVM(source_api: QualysAPI.QualysAPI, geturl: bool = True, getips
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
     ip_set = ip_list.find('.//IP_SET')
+    if ip_set is None:
+        return None
+
     baseurl = '%s/api/2.0/fo/asset/ip/?action=add&tracking_method=DNS&enable_vm=1&enable_pc=0&ips='
 
     addurl = baseurl
-    for ip in ip_set.find('*'):
+    for ip in ip_set.findall('*'):
         if addurl == baseurl:
             addurl = '%s%s' % (addurl, ip.text)
         else:
@@ -101,7 +109,7 @@ def convertDNSTrackedVMSet(ip_set: ET.Element):
     baseurl = '%s/api/2.0/fo/asset/ip/?action=add&tracking_method=DNS&enable_vm=1&enable_pc=0&ips='
 
     addurl = baseurl
-    for ip in ip_set.find('*'):
+    for ip in ip_set.findall('*'):
         if addurl == baseurl:
             addurl = '%s%s' % (addurl, ip.text)
         else:
@@ -121,10 +129,13 @@ def getDNSTrackedPC(source_api: QualysAPI.QualysAPI, geturl: bool = True, getips
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
     ip_set = ip_list.find('.//IP_SET')
+    if ip_set is None:
+        return None
+
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=DNS&enable_vm=0&enable_pc=1&ips='
 
     addurl = baseurl
-    for ip in ip_set.find('*'):
+    for ip in ip_set.findall('*'):
         if addurl == baseurl:
             addurl = '%s%s' % (addurl, ip.text)
         else:
@@ -139,7 +150,7 @@ def convertDNSTrackedPCSet(ip_set: ET.Element):
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=DNS&enable_vm=0&enable_pc=1&ips='
 
     addurl = baseurl
-    for ip in ip_set.find('*'):
+    for ip in ip_set.findall('*'):
         if addurl == baseurl:
             addurl = '%s%s' % (addurl, ip.text)
         else:
@@ -159,10 +170,13 @@ def getNETBIOSTrackedVM(source_api: QualysAPI.QualysAPI, geturl: bool = True, ge
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
     ip_set = ip_list.find('.//IP_SET')
+    if ip_set is None:
+        return None
+
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=NETBIOS&enable_vm=1&enable_pc=0&ips='
 
     addurl = baseurl
-    for ip in ip_set.find('*'):
+    for ip in ip_set.findall('*'):
         if addurl == baseurl:
             addurl = '%s%s' % (addurl, ip.text)
         else:
@@ -177,7 +191,7 @@ def convertNETBIOSTrackedVMSet(ip_set: ET.Element):
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=NETBIOS&enable_vm=1&enable_pc=0&ips='
 
     addurl = baseurl
-    for ip in ip_set.find('*'):
+    for ip in ip_set.findall('*'):
         if addurl == baseurl:
             addurl = '%s%s' % (addurl, ip.text)
         else:
@@ -197,10 +211,13 @@ def getNETBIOSTrackedPC(source_api: QualysAPI.QualysAPI, geturl: bool = True, ge
             % source_api.server
     ip_list = source_api.makeCall(url=fullurl)
     ip_set = ip_list.find('.//IP_SET')
+    if ip_set is None:
+        return None
+
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=NETBIOS&enable_vm=0&enable_pc=1&ips='
 
     addurl = baseurl
-    for ip in ip_set.find('*'):
+    for ip in ip_set.findall('*'):
         if addurl == baseurl:
             addurl = '%s%s' % (addurl, ip.text)
         else:
@@ -215,7 +232,7 @@ def convertNETBIOSTrackedPCSet(ip_set: ET.Element):
     baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=NETBIOS&enable_vm=0&enable_pc=1&ips='
 
     addurl = baseurl
-    for ip in ip_set.find('*'):
+    for ip in ip_set.findall('*'):
         if addurl == baseurl:
             addurl = '%s%s' % (addurl, ip.text)
         else:
