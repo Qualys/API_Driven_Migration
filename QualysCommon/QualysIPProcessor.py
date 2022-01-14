@@ -1,7 +1,6 @@
 from QualysCommon import QualysAPI
 from xml.etree import ElementTree as ET
 
-
 def getIPTrackedVM(source_api: QualysAPI.QualysAPI, geturl: bool = True, getipset: bool = False):
     fullurl = '%s/api/2.0/fo/asset/ip/?action=list&compliance_enabled=0&certview_enabled=0&tracking_method=IP' \
             % source_api.server
@@ -24,21 +23,28 @@ def getIPTrackedVM(source_api: QualysAPI.QualysAPI, geturl: bool = True, getipse
 
 
 def convertIPTrackedVMSet(ip_set: ET.Element):
-    baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=IP&enable_vm=1&enable_pc=0&ips='
+    baseurl = '/api/2.0/fo/asset/ip/'
 
-    addurl = baseurl
+    payload = {
+        'action': 'add',
+        'tracking_method': 'IP',
+        'enable_vm': '1',
+        'enable_pc': '0',
+        'ips': ''
+    }
+
     for ip in ip_set.findall('*'):
-        if addurl == baseurl:
-            addurl = '%s%s' % (addurl, ip.text)
+        if payload['ips'] == '':
+            payload['ips'] = ip.text
         else:
-            addurl = '%s,%s' % (addurl, ip.text)
+            payload['ips'] = '%s,%s' % (payload['ips'], ip.text)
 
-    return addurl
+    return baseurl, payload
 
 
-def createIPTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
+def createIPTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str, payload: dict):
     fullurl = '%s%s' % (target_api.server, addurl)
-    resp = target_api.makeCall(url=fullurl)
+    resp = target_api.makeCall(url=fullurl, payload=payload)
     return resp
 
 
@@ -65,21 +71,28 @@ def getIPTrackedPC(source_api: QualysAPI.QualysAPI, geturl: bool = True, getipse
 
 
 def convertIPTrackedPCSet(ip_set: ET.Element):
-    baseurl = '/api/2.0/fo/asset/ip/?action=add&tracking_method=IP&enable_vm=0&enable_pc=1&ips='
+    baseurl = '/api/2.0/fo/asset/ip/'
 
-    addurl = baseurl
+    payload = {
+        'action': 'add',
+        'tracking_method': 'IP',
+        'enable_vm': '0',
+        'enable_pc': '1',
+        'ips': ''
+    }
+
     for ip in ip_set.findall('*'):
-        if addurl == baseurl:
-            addurl = '%s%s' % (addurl, ip.text)
+        if payload['ips'] == '':
+            payload['ips'] = ip.text
         else:
-            addurl = '%s,%s' % (addurl, ip.text)
+            payload['ips'] = '%s,%s' % (payload['ips'], ip.text)
 
-    return addurl
+    return baseurl, payload
 
 
-def createIPTrackedPC(target_api: QualysAPI.QualysAPI, addurl: str):
+def createIPTrackedPC(target_api: QualysAPI.QualysAPI, addurl: str, payload: dict):
     fullurl = '%s%s' % (target_api.server, addurl)
-    resp = target_api.makeCall(url=fullurl)
+    resp = target_api.makeCall(url=fullurl, payload=payload)
     return resp
 
 
@@ -118,9 +131,9 @@ def convertDNSTrackedVMSet(ip_set: ET.Element):
     return addurl
 
 
-def createDNSTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
+def createDNSTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str, payload: dict):
     fullurl = '%s%s' % (target_api.server, addurl)
-    resp = target_api.makeCall(url=fullurl)
+    resp = target_api.makeCall(url=fullurl, payload=payload)
     return resp
 
 
@@ -159,9 +172,9 @@ def convertDNSTrackedPCSet(ip_set: ET.Element):
     return addurl
 
 
-def createDNSTrackedPC(target_api: QualysAPI.QualysAPI, addurl: str):
+def createDNSTrackedPC(target_api: QualysAPI.QualysAPI, addurl: str, payload: dict):
     fullurl = '%s%s' % (target_api.server, addurl)
-    resp = target_api.makeCall(url=fullurl)
+    resp = target_api.makeCall(url=fullurl, payload=payload)
     return resp
 
 
@@ -200,9 +213,9 @@ def convertNETBIOSTrackedVMSet(ip_set: ET.Element):
     return addurl
 
 
-def createNETBIOSTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str):
+def createNETBIOSTrackedVM(target_api: QualysAPI.QualysAPI, addurl: str, payload: dict):
     fullurl = '%s%s' % addurl
-    resp = target_api.makeCall(url=fullurl)
+    resp = target_api.makeCall(url=fullurl, payload=payload)
     return resp
 
 
@@ -241,7 +254,7 @@ def convertNETBIOSTrackedPCSet(ip_set: ET.Element):
     return addurl
 
 
-def createNETBIOSTrackedPC(target_api: QualysAPI.QualysAPI, addurl: str):
+def createNETBIOSTrackedPC(target_api: QualysAPI.QualysAPI, addurl: str, payload: dict):
     fullurl = '%s%s' % (target_api.server, addurl)
-    resp = target_api.makeCall(url=fullurl)
+    resp = target_api.makeCall(url=fullurl, payload=payload)
     return resp

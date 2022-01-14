@@ -60,7 +60,8 @@ def generateNetworkMap(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.Qu
             continue
         netname = net.find('NAME').text
         netid = net.find('ID').text
-        tgtnet = tgtlist.find('.//[NAME="%s"]/..' % netname)
+        tgtnet = tgtlist.find(".//NETWORK/[NAME='%s']" % netname)
+        # tgtnet = tgtlist.find('.//[NAME="%s"]/..' % netname)
         if tgtnet is None:
             print('ERROR: Could not find Network %s in target subscription' % netname)
             return None

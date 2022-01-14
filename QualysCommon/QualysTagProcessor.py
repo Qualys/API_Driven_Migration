@@ -1,5 +1,7 @@
 from QualysCommon import QualysAPI
 import xml.etree.ElementTree as ET
+
+
 def getTagSet(api: QualysAPI.QualysAPI, sr: ET.Element):
     fullurl = '%s/qps/rest/2.0/search/am/tag' % api.server
     payload = ET.tostring(sr, method='html', encoding='utf-8').decode()

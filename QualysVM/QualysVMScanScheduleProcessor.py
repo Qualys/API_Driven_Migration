@@ -54,17 +54,14 @@ def _safefindlist(xml: ET.Element, findstr: str):
         return []
 
 
-def convertScheduledScan(scan: ET.Element):
-    requeststr = 'api/2.0/fo/schedule/scan/?action=create'
-    scan_title = scan.find('TITLE').text
-    active = '1'
-    option_profile_title = _safefind(scan, 'OPTION_PROFILE/TITLE')
-    priority = _safefind(scan, 'PROCESSING_PRIORITY')
-    requeststr = '%s&scan_title=%s&option_profile=%s&priority=%s' % (
-        requeststr, scan_title.replace(' ', '+'),
-        option_profile_title.replace(' ', '+'),
-        priority[0]
-    )
+def convertScheduledScan(scan: ET.Element, appliance_map: dict):
+
+    requeststr = 'api/2.0/fo/schedule/scan/'
+    payload = {'action': 'create',
+               'scan_title': scan.find('TITLE').text.replace(' ', '+'),
+               'active': '1',
+               'option_profile': _safefind(scan, 'OPTION_PROFILE/TITLE').replace(' ', '+'),
+               'priority': _safefind(scan, 'PROCESSING_PRIORITY')[0]}
 
     appliance_name = _safefind(scan, 'ISCANNER_NAME')
     use_external_appliance = False
@@ -79,6 +76,7 @@ def convertScheduledScan(scan: ET.Element):
         tag_include_selector = _safefind(scan, 'ASSET_TAGS/TAG_INCLUDE_SELECTOR')
         tag_set_include = _safefind(scan, 'ASSET_TAGS/TAG_SET_INCLUDE')
         use_ip_nt_range_tag = _safefind(scan, 'ASSET_TAGS/USE_IP_NT_RANGE_TAGS')
+
         if _safefind(scan, 'ASSET_TAGS/TAG_SET_EXCLUDE') != '':
             tag_set_exclude = _safefind(scan, 'ASSET_TAGS/TAG_SET_EXCLUDE')
             tag_exclude_selector = _safefind(scan, 'ASSET_TAGS/TAG_EXCLUDE_SELECTOR')
@@ -91,24 +89,24 @@ def convertScheduledScan(scan: ET.Element):
             appliance_name = ''
             scanners_in_tagset = '1'
 
-        requeststr = '%s&tag_set_by=name&target_from=tags&tag_include_selector=%s&tag_set_include=%s' % \
-                     (requeststr,
-                      tag_include_selector,
-                      tag_set_include)
+        payload['tag_set_by'] = 'name'
+        payload['target_from'] = 'tags'
+        payload['tag_include_selector'] = tag_include_selector
+        payload['tag_set_include'] = tag_set_include
 
         if use_ip_nt_range_tag is not None or use_ip_nt_range_tag != '':
-            requeststr = '%s&use_ip_nt_range_tags=%s' % (requeststr, use_ip_nt_range_tag)
+            payload['use_ip_nt_range_tags'] = use_ip_nt_range_tag
 
         if tag_set_exclude is not None:
-            requeststr = '%s&tag_exclude_selector=%s&tag_set_exclude=%s' % (requeststr,
-                                                                            tag_exclude_selector,
-                                                                            tag_set_exclude)
+            payload['tag_exclude_selector'] = tag_exclude_selector
+            payload['tag_set_exclude'] = tag_set_exclude
+
         if scanners_in_tagset == '1':
-            requeststr = '%s&scanners_in_tagset=1' % requeststr
+            payload['scanners_in_tagset'] = '1'
         elif use_external_appliance:
-            requeststr = '%s&iscanner_id=0' % requeststr
+            payload['iscanner_id'] = '0'
         else:
-            requeststr = '%s&iscanner_name=%s' % (requeststr, appliance_name)
+            payload['iscanner_name'] = appliance_map[appliance_name]
     else:
         target_from = 'assets'
         # This scan uses Asset Tags or direct IPs
@@ -123,14 +121,17 @@ def convertScheduledScan(scan: ET.Element):
             appliance_name = ''
             scanners_in_ag = '1'
 
-        requeststr = '%s&ip=%s&asset_groups=%s&exclude_ip_per_scan=%s' % (requeststr, ip, asset_group_title_list,
-                                                                          exclude_ip_per_scan)
+        payload['ip'] = ip
+        payload['asset_groups'] = asset_group_title_list
+        payload['exclude_ip_per_scan'] = exclude_ip_per_scan
+
         if scanners_in_ag == '1':
-            requeststr = '%s&scanners_in_ag=1' % requeststr
+            payload['scanners_in_ag'] = '1'
         elif use_external_appliance:
             # When no appliance is specified, the default is to use External Appliance, so we do nothing here
             pass
         else:
+            payload['iscanner_name'] = appliance_map[appliance_name]
             requeststr = '%s&iscanner_name=%s' % (requeststr, appliance_name)
 
     # Schedule
@@ -139,71 +140,87 @@ def convertScheduledScan(scan: ET.Element):
         frequency_weeks = sched.find('WEEKLY').get('frequency_weeks')
         weekdays = sched.find('WEEKLY').get('weekdays')
         weekdays = _getDays(weekdays)
-        requeststr = '%s&occurrence=weekly&frequency_weeks=%s&weekdays=%s' % (requeststr, frequency_weeks, weekdays)
+        payload['occurrence'] = 'weekly'
+        payload['frequency_weeks'] = frequency_weeks
+        payload['weekdays'] = weekdays
+
     elif sched.find('DAILY') is not None:
         frequency_days = sched.find('DAILY').get('frequency_days')
-        requeststr = '%s&occurrence=daily&frequency_days=%s' % (requeststr, frequency_days)
+        payload['occurrence'] = 'daily'
+        payload['frequency_days'] = frequency_days
+
     elif sched.find('MONTHLY') is not None:
         attribs = sched.find('MONTHLY').attrib
         frequency_months = attribs['frequency_months']
         if 'day_of_month' in attribs.keys():
             day_of_month = attribs['day_of_month']
-            requeststr = '%s&occurrence=monthly&frequency_months=%s&day_of_month=%s' % (requeststr,
-                                                                                        frequency_months,
-                                                                                        day_of_month)
+            payload['occurrence'] = 'monthly'
+            payload['freqency_months'] = frequency_months
+            payload['day_of_month'] = day_of_month
+
         else:
             day_of_week = attribs['day_of_week']
             week_of_month = attribs['week_of_month']
-            requeststr = '%s&occurrence=monthly&frequency_months=%s&day_of_week=%s&week_of_month=%s' % \
-                         (requeststr, frequency_months, day_of_week, week_of_month)
+            payload['occurrence'] = 'monthly'
+            payload['freqency_months'] = frequency_months
+            payload['day_of_week'] = day_of_week
+            payload['week_of_month'] = week_of_month
+
     else:
         print('Unusual schedule frequency - could not find WEEKLY, DAILY or MONTHLY')
         return None
 
-    start_hour = sched.find('START_HOUR').text
-    start_minute = sched.find('START_MINUTE').text
-    time_zone_code = sched.find('TIME_ZONE/TIME_ZONE_CODE').text
-    observe_dst = 'no'
     if sched.find('DST_SELECTED').text == '1':
         observe_dst = 'yes'
-    requeststr = '%s&start_hour=%s&start_minute=%s&observe_dst=%s&time_zone_code=%s' % (
-        requeststr, start_hour, start_minute, observe_dst, time_zone_code)
+    else:
+        observe_dst = 'no'
+
+    payload['start_hour'] = sched.find('START_HOUR').text
+    payload['start_minute'] = sched.find('START_MINUTE').text
+    payload['observe_dst'] = observe_dst
+    payload['time_zone_code'] = sched.find('TIME_ZONE/TIME_ZONE_CODE').text
+
     if sched.find('MAX_OCCURRENCE') is not None:
-        requeststr = '%s&recurrence=%s' % (requeststr, sched.find('MAX_OCCURRENCE').text)
+        payload['recurrence'] = sched.find('MAX_OCCURRENCE').text
+
     if sched.find('END_AFTER') is not None:
-        requeststr = '%s&end_after=%s' % (requeststr, sched.find('END_AFTER').text)
+        payload['end_after'] = sched.find('END_AFTER').text
+
     if sched.find('END_AFTER_MINS') is not None:
-        requeststr = '%s&end_after_mins=%s' % (requeststr, sched.find('END_AFTER_MINS').text)
+        payload['end_after_min'] = sched.find('END_AFTER_MINS').text
+
     if sched.find('PAUSE_AFTER_HOURS') is not None:
-        requeststr = '%s&pause_after_hours=%s' % (requeststr, sched.find('PAUSE_AFTER_HOURS').text)
+        payload['pause_after_hours'] = sched.find('PAUSE_AFTER_HOURS').text
+
     if sched.find('RESUME_IN_DAYS') is not None:
-        requeststr = '%s&resume_in_days=%s' % (requeststr, sched.find('RESUME_IN_DAYS').text)
+        payload['resume_in_days'] = sched.find('RESUME_IN_DAYS').text
+
     if sched.find('RESUME_IN_HOURS') is not None:
-        requeststr = '%s&resume_in_hours=%s' % (requeststr, sched.find('RESUME_IN_HOURS').text)
+        payload['resume_in_hours'] = sched.find('RESUME_IN_HOURS').text
 
     # Notifications
     if scan.find('NOTIFICATIONS/*') is not None:
         notifications = scan.find('NOTIFICATIONS')
         if notifications.find('BEFORE_LAUNCH') is not None:
-            requeststr = '%s&before_notify=1&before_notify_unit=%s&before_notify_time=%s&before_notify_message=%s' % (
-                requeststr,
-                notifications.find('BEFORE_LAUNCH/UNIT').text,
-                notifications.find('BEFORE_LAUNCH/TIME').text,
-                notifications.find('BEFORE_LAUNCH/MESSAGE').text
-            )
+            payload['before_notify'] = '1'
+            payload['before_notify_unit'] = notifications.find('BEFORE_LAUNCH/UNIT').text
+            payload['before_notify_time'] = notifications.find('BEFORE_LAUNCH/TIME').text
+            payload['before_notify_message'] = notifications.find('BEFORE_LAUNCH/MESSAGE').text
+
         if notifications.find('AFTER_COMPLETE') is not None:
-            requeststr = '%s&after_notify=1&after_notify_message=%s' % (
-                requeststr, notifications.find('AFTER_COMPLETE/MESSAGE').text)
+            payload['after_notify'] = '1'
+            payload['after_notify_message'] = notifications.find('AFTER_COMPLETE/MESSAGE').text
 
     # Networks ID
     if scan.find('NETWORK_ID') is not None:
-        requeststr = '%s&ip_network_id=%s' % (requeststr, scan.find('NETWORK_ID').text)
+        payload['ip_network_id'] = scan.find('NETWORK_ID').text
 
     # EC2 targets
     if scan.find('CLOUD_DETAILS/CONNECTOR/NAME') is not None:
         connector_name = scan.find('CLOUD_DETAILS/CONNECTOR/NAME').text
         ec2_endpoint = scan.find('EC2_INSTANCE/EC2_ENDPOINT').text
-        requeststr = '%s&connector_name=%s&ec2_endpoint=%s' % (requeststr, connector_name, ec2_endpoint)
+        payload['connector_name'] = connector_name
+        payload['ec2_endpoint'] = ec2_endpoint
 
     # Cloud Perimeter Scan
     if scan.find('.//SCAN_TYPE') is not None:
@@ -218,24 +235,27 @@ def convertScheduledScan(scan: ET.Element):
                 dnslist = []
                 for dns in scan.findall('.//ELB_DNS/DNS'):
                     dnslist.append(dns.text)
-                requeststr = '%s&elb_dns=%s' % (requeststr, ','.join(dnslist))
+                payload['elb_dns'] = ','.join(dnslist)
 
             platform_type = ''
             if scan.find('.//VPC_SCOPE').text == 'All':
-                requeststr = '%s&platform_type=vpc_peered&region=%s' % (requeststr,
-                                                                        scan.find('.//CLOUD_TARGET/REGION/CODE').text)
-            if scan.find('.//VPC_SCOPE').text == 'Selected':
-                requeststr = '%s&platform_type=selected_vpc&vpc_id=%s' % (requeststr,
-                                                                     scan.find('CLOUD_TARGET/VPC_LIST/VPC/UUID').text)
-            if scan.find('.//VPC_SCOPE').text == 'None':
-                requeststr = '%s&platform_type=classic&region=%s' % (requeststr,
-                                                                     scan.find('.//CLOUD_TARGET_REGION/CODE').text)
-    return requeststr
+                payload['platform_type'] = 'vpc_peered'
+                payload['region'] = scan.find('.//CLOUD_TARGET/REGION/CODE').text
 
-def createScheduledScan(target_api: QualysAPI.QualysAPI, requeststr: str):
+            if scan.find('.//VPC_SCOPE').text == 'Selected':
+                payload['platform_type'] = 'selected_vpc'
+                payload['vpc_id'] = scan.find('CLOUD_TARGET/VPC_LIST/VPC/UUID').text
+
+            if scan.find('.//VPC_SCOPE').text == 'None':
+                payload['platform_type'] = 'classic'
+                payload['region'] = scan.find('.//CLOUD_TARGET_REGION/CODE').text
+
+    return requeststr, payload
+
+
+def createScheduledScan(target_api: QualysAPI.QualysAPI, requeststr: str, payload: dict):
     fullurl = '%s/%s' % (target_api.server, requeststr)
-    fullurl.replace(' ', '+')
-    resp = target_api.makeCall(url=fullurl)
+    resp = target_api.makeCall(url=fullurl, payload=payload)
     if not responseHandler(resp):
         print('QualysVMScanScheduleProcessor.createScheduledScan failed')
         return False
