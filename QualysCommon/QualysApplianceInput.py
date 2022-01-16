@@ -22,7 +22,9 @@ def readApplianceMap(inputfile: str):
     return appliancemap
 
 
-def generateApplianceMap(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI):
+def generateApplianceMap(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI,
+                         appliance_name_map: dict = None):
+
     appliancemap = {}
     srcurl = '%s/api/2.0/fo/appliance/?action=list' % source_api.server
     tgturl = '%s/api/2.0/fo/appliance/?action=list' % target_api.server
@@ -50,10 +52,13 @@ def generateApplianceMap(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.
         srcappliancename = sourceappliance.find('NAME').text
         srcapplianceid = sourceappliance.find('ID').text
 
-        tgtappliance = targetlist.find('.//*[NAME="%s"]' % srcappliancename)
+        if appliance_name_map is None:
+            tgtappliance = targetlist.find('.//*[NAME="%s"]' % srcappliancename)
+        else:
+            tgtappliance = targetlist.find('.//*[NAME="%s"]' % appliance_name_map[srcappliancename])
+
         if tgtappliance is None:
-            print('ERROR: Unable to find Appliance %s in target subscription')
+            print('ERROR: Unable to find Appliance %s in target subscription' % appliance_name_map[srcappliancename])
             return None
-        tgtapplianceid = tgtappliance.find('ID').text
-        appliancemap[srcapplianceid] = tgtapplianceid
+        appliancemap[srcapplianceid] = tgtappliance.find('ID').text
     return appliancemap
