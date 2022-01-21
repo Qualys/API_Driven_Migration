@@ -1,6 +1,7 @@
 import requests
 import xml.etree.ElementTree as ET
 from time import sleep
+import sys
 
 class QualysAPI:
     """Class to simplify the making and handling of API calls to the Qualys platform
@@ -145,7 +146,20 @@ class QualysAPI:
             resp = self.sess.send(prepped_req, proxies={'https': self.proxy})
         # Otherwise send direct
         else:
-            resp = self.sess.send(prepped_req)
+            try:
+                resp = self.sess.send(prepped_req)
+            except UnicodeEncodeError:  # Problem encoding the request data
+                print('API Error: UnicodeEncodeError exception caught, returning \'None\' to caller')
+                return None
+            except requests.exceptions.ConnectionError:
+                print('API Error: Connection Error, retrying connection')
+                retryCount += 1
+                resp = self.makeCall(url=url, payload=payload, headers=headers, retryCount=retryCount,
+                                     method=method, returnwith=returnwith)
+            except:  # Unhandled exception
+                print('API Error: Unhandled Exception :', sys.exc_info()[0])
+                print('Returning \'None\' to the caller')
+                return None
 
         if self.debug:
             print("QualysAPI.makeCall: Request Headers")
@@ -179,7 +193,8 @@ class QualysAPI:
 
                 # Make a self-referential call to this same class method, passing in the retry count so the next
                 #   iteration knows how many attempts have been made so far
-                resp = self.makeCall(url=url, payload=payload,headers=headers, retryCount=retryCount)
+                resp = self.makeCall(url=url, payload=payload, headers=headers, retryCount=retryCount, method=method,
+                                     returnwith=returnwith)
 
         # Handle rate limit failures
         if 'X-RateLimit-ToWait-Sec' in resp.headers.keys():

@@ -21,8 +21,10 @@ def exportOptionProfiles(source_api: QualysAPI.QualysAPI):
 
 def importOptionProfiles(target_api: QualysAPI.QualysAPI, optionprofiles: ET.Element):
     fullurl = '%s/api/2.0/fo/subscription/option_profile/?action=import' % target_api.server
-    payload = ET.tostring(optionprofiles, method='html', encoding='utf-8').decode()
-    response = target_api.makeCall(url=fullurl, payload=payload)
-    if not responseHandler(response):
-        return False
-    return True
+    ET.indent(optionprofiles, space='  ', level=0)
+    payload = ET.tostring(optionprofiles, method='xml', encoding='utf-8', short_empty_elements=False).decode()
+    headers = {'Content-Type': 'text/xml'}
+    response = target_api.makeCall(url=fullurl, payload=payload, headers=headers, returnwith='text')
+    return response
+
+

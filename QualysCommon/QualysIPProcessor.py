@@ -1,6 +1,8 @@
 from QualysCommon import QualysAPI
 from xml.etree import ElementTree as ET
 
+# TODO Convert DNS and NETBIOS convert functions to use payload
+
 def getIPTrackedVM(source_api: QualysAPI.QualysAPI, geturl: bool = True, getipset: bool = False):
     fullurl = '%s/api/2.0/fo/asset/ip/?action=list&compliance_enabled=0&certview_enabled=0&tracking_method=IP' \
             % source_api.server

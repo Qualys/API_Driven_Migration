@@ -2,11 +2,36 @@ from QualysCommon import QualysAPI
 import xml.etree.ElementTree as ET
 
 
+def checkResponse(resp: ET.Element):
+    if resp.tag is None:
+        # We don't have a ServiceResponse element, so this isn't a valid response
+        print('\n\nAPI ERROR: Invalid XML returned')
+        return False
+    if resp.tag != 'ServiceResponse':
+        print('\n\nAPI ERROR: Not a valid ServiceResponse')
+        return False
+    if resp.find('responseCode') is None:
+        print('\n\nAPI ERROR: No responseCode element found')
+        return False
+    if resp.find('responseCode').text == 'SUCCESS':
+        return True
+
+    # We get a valid responseCode, but it does not indicate success.  We output the reason and the contents
+    # of the responseErrorDetails
+    print('\n\nAPI ERROR: %s' % resp.find('responseCode').text)
+    print('Error Message : %s' % resp.find('responseErrorDetails/errorMessage').text)
+    if resp.find('responseErrorDetails/errorResolution') is not None:
+        print('Suggested Resolution : %s' % resp.find('responseErrorDetails/errorResolution').text)
+    return False
+
+
 def getTagSet(api: QualysAPI.QualysAPI, sr: ET.Element):
     fullurl = '%s/qps/rest/2.0/search/am/tag' % api.server
     payload = ET.tostring(sr, method='html', encoding='utf-8').decode()
 
     resp = api.makeCall(url=fullurl, payload=payload)
+    if not checkResponse(resp):
+        return None
     return resp
 
 
@@ -53,14 +78,19 @@ def getTags(api: QualysAPI.QualysAPI, filterlist=None):
             print('Failed\nFATAL: QualysTagProcessor.getTagSet() FAILED')
             return None
 
+        if tagset is None:
+            # We had an error, so return None to be safe
+            return None
+
         for t in tagset.findall('.//Tag'):
             tags.append(t)
-        if tagset.find('hasMoreRecords').text == 'true':
-            offset = offset + limit
-            start.text = str(offset)
-        else:
-            atEnd = True
-        del tagset
+        if tagset.find('hasMoreRecords') is not None:
+            if tagset.find('hasMoreRecords').text == 'true':
+                offset = offset + limit
+                start.text = str(offset)
+            else:
+                atEnd = True
+            del tagset
     print('Success')
     return tags
 
@@ -220,7 +250,7 @@ def createTags(api: QualysAPI.QualysAPI, tags: ET.Element):
         sr = ET.Element('ServiceRequest')
         data = ET.SubElement(sr, 'data')
         data.append(tag)
-        xmlstr = ET.tostring(sr, method='html', encoding='utf-8').decode()
+        xmlstr = ET.tostring(sr, method='xml', encoding='utf-8').decode()
         print('%s... ' % tag.find('name').text, end='')
         fullurl = '%s/qps/rest/2.0/create/am/tag' % api.server
         resp = api.makeCall(url=fullurl, payload=xmlstr)
@@ -236,6 +266,20 @@ def createTags(api: QualysAPI.QualysAPI, tags: ET.Element):
         else:
             print('Success')
     return True
+
+
+def createSingleTag(api: QualysAPI.QualysAPI, tag: ET.Element):
+    sr = ET.Element('ServiceRequest')
+    srdata = ET.SubElement(sr, 'data')
+    srdata.append(tag)
+    xmlstr = ET.tostring(sr, method='xml', encoding='utf-8').decode()
+    print('Creating Tag %s' % sr.find('.//name').text)
+    fullurl = '%s/qps/rest/2.0/create/am/tag' % api.server
+    resp = api.makeCall(url=fullurl, payload=xmlstr)
+    if not checkResponse(resp):
+        print('ERROR: QualysTagProcessor.createSingleTag : Could not create Tag')
+        return None
+    return resp
 
 
 def reparentTag(tags: ET.Element, parentname: str):

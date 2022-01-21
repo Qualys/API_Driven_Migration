@@ -24,7 +24,7 @@ def getDomains(source_api: QualysAPI.QualysAPI):
 
     allurls = []
     addurl = '/msp/asset_domain.php?action=add'
-    for domain in response.findall('.//*DOMAIN'):
+    for domain in response.findall('.//DOMAIN'):
         # All domains have a domain name
         dname = domain.find('DOMAIN_NAME').text
         addurl = '%s&domain=%s' % (addurl, dname)
@@ -33,7 +33,7 @@ def getDomains(source_api: QualysAPI.QualysAPI):
             continue
         else:
             netblock = ''
-            for range in domain.find('NETBLOCK/RANGE'):
+            for range in domain.findall('NETBLOCK/RANGE'):
                 startip = range.find('START').text
                 endip = range.find('END').text
                 if not netblock == '':
@@ -49,8 +49,38 @@ def getDomains(source_api: QualysAPI.QualysAPI):
 
 
 def createDomains(target_api: QualysAPI.QualysAPI, allurls: list):
-    addurl = ''
     for url in allurls:
-        addurl = '%s%s' % (target_api.server, url)
+        addurl = '%s/msp/asset_domain.php?action=add&%s' % (target_api.server, url)
         response = target_api.makeCall(url=addurl)
-        responseHandler(response=response)
+        if not responseHandler(response=response):
+            return False
+    return True
+
+
+def editDomain(target_api: QualysAPI.QualysAPI, url: str):
+    url = '%s/msp/asset_domain.php?action=edit&%s' % (target_api.server, url)
+    response = target_api.makeCall(url=url)
+    if not responseHandler(response):
+        return None
+    return response
+
+
+def createDomainSingle(target_api: QualysAPI.QualysAPI, url: str):
+    url = '%s/msp/asset_domain.php?action=add&%s' % (target_api.server, url)
+    response = target_api.makeCall(url=url)
+    if not responseHandler(response):
+        return None
+    return response
+
+
+def getDomainsXML(source_api: QualysAPI.QualysAPI):
+    fullurl = '%s/msp/asset_domain_list.php' % source_api.server
+    response = source_api.makeCall(url=fullurl)
+    if response.find('.//CODE') is not None:
+        print("FATAL: Error getting domain list")
+        return None
+
+    if response.find('.//DOMAIN') is None:
+        print('No domains found')
+        return None
+    return response

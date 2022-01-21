@@ -37,13 +37,10 @@ def _safefindlist(xml: ET.Element, findstr: str):
     return []
 
 
-def convertScheduledScan(scan: ET.Element, appliance_map: dict):
+def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool = False):
     requeststr = '/api/2.0/fo/schedule/scan/compliance/'
-    payload = {'action': 'create'}
-    scan_title =
-    option_profile_title =
-    payload['scan_title'] = scan.find('TITLE').text.replace(' ', '+')
-    payload['option_title'] = _safefind(scan, 'OPTION_PROFILE/TITLE').replace(' ', '+')
+    payload = {'action': 'create', 'scan_title': scan.find('TITLE').text,
+               'option_title': _safefind(scan, 'OPTION_PROFILE/TITLE')}
 
     appliance_name = _safefind(scan, 'ISCANNER_NAME')
     use_external_appliance = False
@@ -80,7 +77,14 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict):
             payload['iscanner_id'] = '0'
 
         else:
-            payload['iscanner_name'] = appliance_map[appliance_name]
+            if appliance_name.find(',') > -1:
+                appliance_list = appliance_name.split(', ')
+                new_appliance_list = []
+                for appl in appliance_list:
+                    new_appliance_list.append(appliance_map[appl])
+                payload['iscanner_name'] = ','.join(new_appliance_list)
+            else:
+                payload['iscanner_name'] = appliance_map[appliance_name]
 
     else:
         # This scan uses Asset Groups/IPs to define scope
@@ -108,7 +112,14 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict):
             payload['iscanner_id'] = '0'
 
         else:
-            payload['iscanner_name'] = appliance_map[appliance_name]
+            if appliance_name.find(',') > -1:
+                appliance_list = appliance_name.split(', ')
+                new_appliance_list = []
+                for appl in appliance_list:
+                    new_appliance_list.append(appliance_map[appl])
+                payload['iscanner_name'] = ','.join(new_appliance_list)
+            else:
+                payload['iscanner_name'] = appliance_map[appliance_name]
 
     # Schedule
     sched = scan.find('SCHEDULE')
@@ -199,7 +210,11 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict):
         payload['connector_name'] = connector_name
         payload['ec2_endpoint'] = ec2_endpoint
 
-    payload['active'] = _safefind(scan, 'ACTIVE')
+    # payload['active'] = _safefind(scan, 'ACTIVE')
+    if setactive:
+        payload['active'] = '1'
+    else:
+        payload['active'] = '0'
 
     return requeststr, payload
 

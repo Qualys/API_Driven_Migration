@@ -5,6 +5,12 @@ from QualysCommon import QualysAPI
 def responseHandler(resp: ET.Element):
     if resp is None:
         return False
+    if type(resp) is not ET.Element:
+        print('API Error: Unable to determine response')
+        return False
+    if resp.find('.//CODE') is not None:
+        print('ERROR: %s\n%s' % (resp.find('.//CODE').text, resp.find('.//TEXT').text))
+        return False
     return True
 
 
@@ -38,6 +44,17 @@ def getVirtualHosts(source_api: QualysAPI.QualysAPI, networks: bool = False):
     return hostlist
 
 
+def convertVirtualHost(vhost: dict):
+    url = '/api/2.0/fo/asset/vhost/?action=create&ip=%s&port=%s&fqdn=%s' % (
+            vhost['IP'],
+            vhost['PORT'],
+            ','.join(vhost['FQDNS'])
+        )
+    if 'NETWORK_ID' in vhost.keys():
+        url = '%s&network_id=%s' % (url, vhost['NETWORK_ID'])
+    return url
+
+
 def convertVirtualHosts(vhostlist: list):
     urllist = []
     vhost: dict
@@ -61,3 +78,11 @@ def createVirtualHosts(urllist: list, target_api: QualysAPI.QualysAPI):
             print('QualysVirtualHostProcessor.createVirtualHosts ERROR: Could not validate response')
             return False
     return True
+
+
+def createVirtualHost(target_api: QualysAPI.QualysAPI, url: str):
+    fullurl = '%s%s' % (target_api.server, url)
+    resp = target_api.makeCall(url=fullurl)
+    if not responseHandler(resp):
+        return None
+    return resp

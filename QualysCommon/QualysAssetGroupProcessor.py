@@ -102,7 +102,12 @@ def convertAssetGroup(ag: ET.Element, netmap: dict = None, appliancemap: dict = 
             print('FATAL: Asset Group %s has scanner appliances assigned but no appliance map is provided' %
                   ag.find('TITLE').text)
             return None
-        payload['appliance_ids'] = ag.find('APPLIANCE_IDS').text
+        appliance_ids = ag.find('APPLIANCE_IDS').text.split(', ')
+        newappids = []
+        for appid in appliance_ids:
+            newappids.append(appliancemap[appid])
+        payload['appliance_ids'] = ','.join(newappids)
+        # payload['appliance_ids'] = ag.find('APPLIANCE_IDS').text.replace(', ', ',')
 
     return url, payload
 
@@ -120,7 +125,4 @@ def buildSimpleAssetGroup(name: str, ips: list):
 def createAssetGroup(target_api: QualysAPI.QualysAPI, url: str, payload: dict):
     fullurl = '%s%s' % (target_api.server, url)
     resp = target_api.makeCall(url=fullurl, payload=payload)
-    if not responseHandler(resp):
-        print('FATAL: Could not create Asset Group')
-        return False
-    return True
+    return resp

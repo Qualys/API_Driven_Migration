@@ -29,13 +29,13 @@ def _safefind(xml: ET.Element, findstr: str):
 
 def _getDays(daynums: str):
     dayswitch = {
-        '0': 'sunday',
-        '1': 'monday',
-        '2': 'tuesday',
-        '3': 'wednesday',
-        '4': 'thursday',
-        '5': 'friday',
-        '6': 'saturday'
+        '0': 'Sunday',
+        '1': 'Monday',
+        '2': 'Tuesday',
+        '3': 'Wednesday',
+        '4': 'Thursday',
+        '5': 'Friday',
+        '6': 'Saturday'
     }
     days = ''
     for day in daynums.split(','):
@@ -47,6 +47,17 @@ def _getDays(daynums: str):
     return days
 
 
+def _getWeekOfMonth(wom: str):
+    womswitch = {
+        '1': 'first',
+        '2': 'second',
+        '3': 'third',
+        '4': 'fourth',
+        '5': 'last'
+    }
+    return womswitch[wom]
+
+
 def _safefindlist(xml: ET.Element, findstr: str):
     if xml.find('%s' % findstr) is not None:
         return xml.findall(findstr)
@@ -54,14 +65,19 @@ def _safefindlist(xml: ET.Element, findstr: str):
         return []
 
 
-def convertScheduledScan(scan: ET.Element, appliance_map: dict):
+def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool = False,
+                         dist_group_map: dict = None):
 
     requeststr = 'api/2.0/fo/schedule/scan/'
     payload = {'action': 'create',
-               'scan_title': scan.find('TITLE').text.replace(' ', '+'),
-               'active': '1',
-               'option_profile': _safefind(scan, 'OPTION_PROFILE/TITLE').replace(' ', '+'),
+               'scan_title': scan.find('TITLE').text,
+               'option_title': _safefind(scan, 'OPTION_PROFILE/TITLE'),
                'priority': _safefind(scan, 'PROCESSING_PRIORITY')[0]}
+
+    if setactive:
+        payload['active'] = '1'
+    else:
+        payload['active'] = '0'
 
     appliance_name = _safefind(scan, 'ISCANNER_NAME')
     use_external_appliance = False
@@ -76,6 +92,8 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict):
         tag_include_selector = _safefind(scan, 'ASSET_TAGS/TAG_INCLUDE_SELECTOR')
         tag_set_include = _safefind(scan, 'ASSET_TAGS/TAG_SET_INCLUDE')
         use_ip_nt_range_tag = _safefind(scan, 'ASSET_TAGS/USE_IP_NT_RANGE_TAGS')
+
+        # TODO Find out how use_ip_nt_range_tag_include and use_ip_nt_range_tag_exclude translates to/from the XML
 
         if _safefind(scan, 'ASSET_TAGS/TAG_SET_EXCLUDE') != '':
             tag_set_exclude = _safefind(scan, 'ASSET_TAGS/TAG_SET_EXCLUDE')
@@ -104,26 +122,37 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict):
         if scanners_in_tagset == '1':
             payload['scanners_in_tagset'] = '1'
         elif use_external_appliance:
-            payload['iscanner_id'] = '0'
+            pass
         else:
-            payload['iscanner_name'] = appliance_map[appliance_name]
+            if appliance_name.find(',') > -1:
+                appliance_list = appliance_name.split(', ')
+                new_appliance_list = []
+                for appl in appliance_list:
+                    new_appliance_list.append(appliance_map[appl])
+                payload['iscanner_name'] = ','.join(new_appliance_list)
+            else:
+                payload['iscanner_name'] = appliance_map[appliance_name]
     else:
-        target_from = 'assets'
         # This scan uses Asset Tags or direct IPs
-        asset_group_titles = []
-        for group in _safefindlist(scan, './/ASSET_GROUP_TITLE'):
-            asset_group_titles.append(group.text)
-        asset_group_title_list = ','.join(asset_group_titles)
-        ip = _safefind(scan, 'TARGET')
-        exclude_ip_per_scan = _safefind(scan, 'EXCLUDE_IP_PER_SCAN')
-        scanners_in_ag = '0'
+        scanners_in_ag = 0
+
+        if len(_safefindlist(scan, './/ASSET_GROUP_TITLE')) > 0:
+            asset_group_titles = []
+            for group in _safefindlist(scan, './/ASSET_GROUP_TITLE'):
+                asset_group_titles.append(group.text)
+            asset_group_title_list = ','.join(asset_group_titles)
+            if _safefind(scan, 'EXCLUDE_IP_PER_SCAN') != '':
+                payload['exclude_ip_per_scan'] = _safefind(scan, 'EXCLUDE_IP_PER_SCAN')
+
+            scanners_in_ag = '0'
+            payload['asset_groups'] = asset_group_title_list
+
         if appliance_name == 'All Scanners in Asset Group':
             appliance_name = ''
             scanners_in_ag = '1'
 
+        ip = _safefind(scan, 'TARGET')
         payload['ip'] = ip
-        payload['asset_groups'] = asset_group_title_list
-        payload['exclude_ip_per_scan'] = exclude_ip_per_scan
 
         if scanners_in_ag == '1':
             payload['scanners_in_ag'] = '1'
@@ -131,8 +160,14 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict):
             # When no appliance is specified, the default is to use External Appliance, so we do nothing here
             pass
         else:
-            payload['iscanner_name'] = appliance_map[appliance_name]
-            requeststr = '%s&iscanner_name=%s' % (requeststr, appliance_name)
+            if appliance_name.find(',') > -1:
+                appliance_list = appliance_name.split(', ')
+                new_appliance_list = []
+                for appl in appliance_list:
+                    new_appliance_list.append(appliance_map[appl])
+                payload['iscanner_name'] = ','.join(new_appliance_list)
+            else:
+                payload['iscanner_name'] = appliance_map[appliance_name]
 
     # Schedule
     sched = scan.find('SCHEDULE')
@@ -155,16 +190,16 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict):
         if 'day_of_month' in attribs.keys():
             day_of_month = attribs['day_of_month']
             payload['occurrence'] = 'monthly'
-            payload['freqency_months'] = frequency_months
+            payload['frequency_months'] = frequency_months
             payload['day_of_month'] = day_of_month
 
         else:
             day_of_week = attribs['day_of_week']
             week_of_month = attribs['week_of_month']
             payload['occurrence'] = 'monthly'
-            payload['freqency_months'] = frequency_months
+            payload['frequency_months'] = frequency_months
             payload['day_of_week'] = day_of_week
-            payload['week_of_month'] = week_of_month
+            payload['week_of_month'] = _getWeekOfMonth(week_of_month)
 
     else:
         print('Unusual schedule frequency - could not find WEEKLY, DAILY or MONTHLY')
@@ -193,10 +228,17 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict):
         payload['pause_after_hours'] = sched.find('PAUSE_AFTER_HOURS').text
 
     if sched.find('RESUME_IN_DAYS') is not None:
-        payload['resume_in_days'] = sched.find('RESUME_IN_DAYS').text
+        if sched.find('RESUME_IN_DAYS').text.lower() == 'manually':
+            payload['resume_in_days'] = 'Manually'
+        else:
+            payload['resume_in_days'] = sched.find('RESUME_IN_DAYS').text
 
     if sched.find('RESUME_IN_HOURS') is not None:
-        payload['resume_in_hours'] = sched.find('RESUME_IN_HOURS').text
+        if payload['resume_in_days'] != 'Manually':
+            if sched.find('RESUME_IN_HOURS').text == 'manually':
+                payload['resume_in_hours'] = 'Manually'
+            else:
+                payload['resume_in_hours'] = sched.find('RESUME_IN_HOURS').text
 
     # Notifications
     if scan.find('NOTIFICATIONS/*') is not None:
@@ -211,6 +253,29 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict):
             payload['after_notify'] = '1'
             payload['after_notify_message'] = notifications.find('AFTER_COMPLETE/MESSAGE').text
 
+        if notifications.find('LAUNCH_DELAY') is not None:
+            payload['delay_notify'] = '1'
+            payload['delay_notify_message'] = notifications.find('LAUNCH_DELAY/MESSAGE').text
+
+        if notifications.find('LAUNCH_SKIP') is not None:
+            payload['skipped_notify'] = '1'
+            payload['skipped_notify_message'] = notifications.find('LAUNCH_SKIP/MESSAGE').text
+
+        if notifications.find('DEACTIVATE_SCHEDULE') is not None:
+            payload['deactivate_notify'] = '1'
+            payload['deactivate_notify_message'] = notifications.find('DEACTIVATE_SCHEDULE/MESSAGE').text
+
+        if notifications.find('DISTRIBUTION_GROUPS') is not None:
+            if dist_group_map is None:
+                print('ERROR: No Distribution Group Map provided but Distribution Groups found in schedule '
+                      'notifications')
+                return None, None
+
+            dist_group_list = []
+            for dist_group in notifications.findall('DISTRIBUTION_GROUPS/DISTRIBUTION_GROUP/ID'):
+                dist_group_list.append(dist_group_map[dist_group.text])
+            payload['recipient_group_ids'] = ','.join(dist_group_list)
+
     # Networks ID
     if scan.find('NETWORK_ID') is not None:
         payload['ip_network_id'] = scan.find('NETWORK_ID').text
@@ -223,6 +288,7 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict):
         payload['ec2_endpoint'] = ec2_endpoint
 
     # Cloud Perimeter Scan
+    # TODO Cloud Perimeter Scans have their own create API endpoint - move this out into its own function
     if scan.find('.//SCAN_TYPE') is not None:
         if scan.find('.//SCAN_TYPE').text == 'Cloud Perimeter':
             # Add in the cloud perimeter-specific stuff here
