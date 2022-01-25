@@ -19,10 +19,7 @@ def getScheduleList(api: QualysAPI.QualysAPI, activeonly: bool = True):
         print('QualysComplianceScanScheduleProcessor.getSchedules failed')
         return None
 
-    schedulelist = []
-    for scan in resp.findall('.//SCAN'):
-        schedulelist.append(scan)
-    return schedulelist
+    return resp
 
 
 def _safefind(xml: ET.Element, findstr: str):
@@ -37,7 +34,18 @@ def _safefindlist(xml: ET.Element, findstr: str):
     return []
 
 
-def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool = False):
+def _getWeekOfMonth(wom: str):
+    womswitch = {
+        '1': 'first',
+        '2': 'second',
+        '3': 'third',
+        '4': 'fourth',
+        '5': 'last'
+    }
+    return womswitch[wom]
+
+
+def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool = False, dist_group_map: dict = None):
     requeststr = '/api/2.0/fo/schedule/scan/compliance/'
     payload = {'action': 'create', 'scan_title': scan.find('TITLE').text,
                'option_title': _safefind(scan, 'OPTION_PROFILE/TITLE')}
@@ -126,10 +134,10 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool 
     if sched.find('WEEKLY') is not None:
         frequency_weeks = sched.find('WEEKLY').get('frequency_weeks')
         weekdays = sched.find('WEEKLY').get('weekdays')
+        weekdays = _getDays(weekdays)
         payload['occurrence'] = 'weekly'
         payload['frequency_weeks'] = frequency_weeks
         payload['weekdays'] = weekdays
-
 
     elif sched.find('DAILY') is not None:
         frequency_days = sched.find('DAILY').get('frequency_days')
@@ -145,14 +153,13 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool 
             payload['frequency_months'] = frequency_months
             payload['day_of_month'] = day_of_month
 
-
         else:
             day_of_week = attribs['day_of_week']
             week_of_month = attribs['week_of_month']
             payload['occurrence'] = 'monthly'
             payload['frequency_months'] = frequency_months
             payload['day_of_week'] = day_of_week
-            payload['week_of_month'] = week_of_month
+            payload['week_of_month'] = _getWeekOfMonth(week_of_month)
 
     else:
         print('Unusual schedule frequency - could not find WEEKLY, DAILY or MONTHLY')
@@ -181,10 +188,17 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool 
         payload['pause_after_hours'] = _safefind(sched, 'PAUSE_AFTER_HOURS')
 
     if sched.find('RESUME_IN_DAYS') is not None:
-        payload['resume_in_days'] = _safefind(sched, 'RESUME_IN_DAYS')
+        if sched.find('RESUME_IN_DAYS').text.lower() == 'manually':
+            payload['resume_in_days'] = 'Manually'
+        else:
+            payload['resume_in_days'] = _safefind(sched, 'RESUME_IN_DAYS')
 
     if sched.find('RESUME_IN_HOURS') is not None:
-        payload['resume_in_hours'] = _safefind(sched, 'RESUME_IN_HOURS')
+        if payload['resume_in_days'] != 'Manually':
+            if sched.find('RESUME_IN_HOURS').text.lower() == 'manually':
+                payload['resume_in_hours'] = 'Manually'
+            else:
+                payload['resume_in_hours'] = sched.find('RESUME_IN_HOURS').text
 
     # Notifications
     if scan.find('NOTIFICATIONS/*') is not None:
@@ -198,6 +212,29 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool 
         if notifications.find('AFTER_COMPLETE') is not None:
             payload['after_notify'] = '1'
             payload['after_notify_message'] = _safefind(notifications, 'AFTER_COMPLETE/MESSAGE')
+
+        if notifications.find('LAUNCH_DELAY') is not None:
+            payload['delay_notify'] = '1'
+            payload['delay_notify_message'] = notifications.find('LAUNCH_DELAY/MESSAGE').text
+
+        if notifications.find('LAUNCH_SKIP') is not None:
+            payload['skipped_notify'] = '1'
+            payload['skipped_notify_message'] = notifications.find('LAUNCH_SKIP/MESSAGE').text
+
+        if notifications.find('DEACTIVATE_SCHEDULE') is not None:
+            payload['deactivate_notify'] = '1'
+            payload['deactivate_notify_message'] = notifications.find('DEACTIVATE_SCHEDULE/MESSAGE').text
+
+        if notifications.find('DISTRIBUTION_GROUPS') is not None:
+            if dist_group_map is None:
+                print('ERROR: No Distribution Group Map provided but Distribution Groups found in schedule '
+                      'notifications')
+                return None, None
+
+            dist_group_list = []
+            for dist_group in notifications.findall('DISTRIBUTION_GROUPS/DISTRIBUTION_GROUP/ID'):
+                dist_group_list.append(dist_group_map[dist_group.text])
+            payload['recipient_group_ids'] = ','.join(dist_group_list)
 
     # Networks ID
     if scan.find('NETWORK_ID') is not None:
@@ -222,7 +259,8 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool 
 def createScheduledPCScan(api: QualysAPI.QualysAPI, requeststr: str, payload: dict):
     fullurl = '%s/%s' % (api.server, requeststr)
     resp = api.makeCall(url=fullurl, payload=payload)
-    if not responseHandler(resp):
-        print('QualysComplianceScanScheduleProcessor.createScheduledPCScan failed')
-        return False
-    return True
+    # if not responseHandler(resp):
+    #     print('QualysComplianceScanScheduleProcessor.createScheduledPCScan failed')
+    #     return False
+    # return True
+    return resp

@@ -55,7 +55,7 @@ def _getWeekOfMonth(wom: str):
         '4': 'fourth',
         '5': 'last'
     }
-    return womswitch[wom]
+    return womswitch.get(wom, None)
 
 
 def _safefindlist(xml: ET.Element, findstr: str):
@@ -147,7 +147,7 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool 
             scanners_in_ag = '0'
             payload['asset_groups'] = asset_group_title_list
 
-        if appliance_name == 'All Scanners in Asset Group':
+        if appliance_name == 'All in Asset Group':
             appliance_name = ''
             scanners_in_ag = '1'
 
@@ -322,7 +322,8 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool 
 def createScheduledScan(target_api: QualysAPI.QualysAPI, requeststr: str, payload: dict):
     fullurl = '%s/%s' % (target_api.server, requeststr)
     resp = target_api.makeCall(url=fullurl, payload=payload)
-    if not responseHandler(resp):
-        print('QualysVMScanScheduleProcessor.createScheduledScan failed')
-        return False
-    return True
+    # if not responseHandler(resp):
+    #     print('QualysVMScanScheduleProcessor.createScheduledScan failed')
+    #     return False
+    # return True
+    return resp

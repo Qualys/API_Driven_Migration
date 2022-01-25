@@ -115,10 +115,14 @@ class QualysAPI:
             'US01': 'https://qualysapi.qualys.com',
             'US02': 'https://qualysapi.qg2.apps.qualys.com',
             'US03': 'https://qualysapi.qg3.apps.qualys.com',
+            'US04': 'https://qualysapi.qg4.apps.qualys.com',
             'EU01': 'https://qualysapi.qualys.eu',
             'EU02': 'https://qualysapi.qg2.apps.qualys.eu',
             'UK01': 'https://qualysapi.qg1.apps.qualys.co.uk',
-            'IN01': 'https://qualysapi.qg1.apps.qualys.in'
+            'AE01': 'https://qualysapi.qg1.apps.qualys.ae',
+            'IN01': 'https://qualysapi.qg1.apps.qualys.in',
+            'AU01': 'https://qualysapi.qg1.apps.qualys.com.au',
+            'CA01': 'https://qualysapi.qg1.apps.qualys.ca'
         }
         return switcher.get(pod, "invalid")
 
@@ -143,12 +147,12 @@ class QualysAPI:
             print("QualysAPI.makeCall: RequestBody")
             print(payload)
         if self.enableProxy:
-            resp = self.sess.send(prepped_req, proxies={'https': self.proxy})
+            resp = self.sess.send(prepped_req, proxies={'https': self.proxy}, timeout=None)
         # Otherwise send direct
         else:
             try:
-                resp = self.sess.send(prepped_req)
-            except UnicodeEncodeError:  # Problem encoding the request data
+                resp = self.sess.send(prepped_req, timeout=None)
+            except UnicodeEncodeError:  # Problem encoding request data
                 print('API Error: UnicodeEncodeError exception caught, returning \'None\' to caller')
                 return None
             except requests.exceptions.ConnectionError:

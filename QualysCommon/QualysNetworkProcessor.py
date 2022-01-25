@@ -59,6 +59,11 @@ def generateNetworkMap(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.Qu
         if net.find('ID').text == '0':
             continue
         netname = net.find('NAME').text
+
+        # Networks beginning 'Global' or 'Qualys' are reserved for system use
+        if netname.find('Global') == 0 or netname.find('Qualys') == 0:
+            continue
+
         netid = net.find('ID').text
         tgtnet = tgtlist.find(".//NETWORK/[NAME='%s']" % netname)
         # tgtnet = tgtlist.find('.//[NAME="%s"]/..' % netname)

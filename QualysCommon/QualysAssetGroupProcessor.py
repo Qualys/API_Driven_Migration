@@ -126,3 +126,33 @@ def createAssetGroup(target_api: QualysAPI.QualysAPI, url: str, payload: dict):
     fullurl = '%s%s' % (target_api.server, url)
     resp = target_api.makeCall(url=fullurl, payload=payload)
     return resp
+
+
+def build_asset_group_map(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, prefix: str = None):
+    baseurl = '/api/2.0/fo/asset/group/?action=list&show_attributes=ID,TITLE'
+    source_url = '%s%s' % (source_api.server, baseurl)
+    target_url = '%s%s' % (target_api.server, baseurl)
+
+    source_ags = source_api.makeCall(url=source_url)
+    target_ags = target_api.makeCall(url=target_url)
+
+    source_ag_dict = {}
+    target_ag_dict = {}
+    ag_map = {}
+
+    for i in source_ags.findall('.//ASSET_GROUP'):
+        source_ag_dict[i.find('TITLE').text] = i.find('ID').text
+
+    for i in target_ags.findall('.//ASSET_GROUP'):
+        target_ag_dict[i.find('TITLE').text] = i.find('ID').text
+
+    for i in source_ag_dict.keys():
+        if prefix is not None:
+            target_ag_name = '%s %s' % (prefix, i)
+            if target_ag_name in target_ag_dict.keys():
+                ag_map[source_ag_dict[i]] = target_ag_dict[target_ag_name]
+        else:
+            if i in target_ag_dict.keys():
+                ag_map[source_ag_dict[i]] = target_ag_dict[i]
+
+    return ag_map
