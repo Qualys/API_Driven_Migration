@@ -45,6 +45,26 @@ def _getWeekOfMonth(wom: str):
     return womswitch[wom]
 
 
+def _getDays(daynums: str):
+    dayswitch = {
+        '0': 'Sunday',
+        '1': 'Monday',
+        '2': 'Tuesday',
+        '3': 'Wednesday',
+        '4': 'Thursday',
+        '5': 'Friday',
+        '6': 'Saturday'
+    }
+    days = ''
+    for day in daynums.split(','):
+        day = day.strip()
+        if days == '':
+            days = dayswitch.get(day, '')
+        else:
+            days = '%s,%s' % (days, dayswitch.get(day, None))
+    return days
+
+
 def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool = False, dist_group_map: dict = None):
     requeststr = '/api/2.0/fo/schedule/scan/compliance/'
     payload = {'action': 'create', 'scan_title': scan.find('TITLE').text,
@@ -62,8 +82,13 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool 
         tag_include_selector = _safefind(scan, 'ASSET_TAGS/TAG_INCLUDE_SELECTOR')
         tag_set_include = _safefind(scan, 'ASSET_TAGS/TAG_SET_INCLUDE')
         use_ip_nt_range_tag = _safefind(scan, 'ASSET_TAGS/USE_IP_NT_RANGE_TAGS')
-        tag_set_exclude = _safefind(scan, 'ASSET_TAGS/TAG_SET_EXCLUDE')
-        tag_exclude_selector = _safefind(scan, 'ASSET_TAGS/TAG_EXCLUDE_SELECTOR')
+
+        if _safefind(scan, 'ASSET_TAGS/TAG_SET_EXCLUDE') != '':
+            tag_set_exclude = _safefind(scan, 'ASSET_TAGS/TAG_SET_EXCLUDE')
+            tag_exclude_selector = _safefind(scan, 'ASSET_TAGS/TAG_EXCLUDE_SELECTOR')
+        else:
+            tag_set_exclude = None
+            tag_exclude_selector = None
 
         if appliance_name == 'All Scanners in TagSet':
             appliance_name = ''
@@ -71,12 +96,16 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool 
         else:
             scanners_in_tagset = False
 
+        payload['tag_set_by'] = 'name'
         payload['target_from'] = 'tags'
         payload['tag_include_selector'] = tag_include_selector
         payload['tag_set_include'] = tag_set_include
-        payload['use_ip_nt_range_tag'] = use_ip_nt_range_tag
-        payload['tag_set_exclude'] = tag_set_exclude
-        payload['tag_exclude_selector'] = tag_exclude_selector
+        if use_ip_nt_range_tag is not None or use_ip_nt_range_tag != '':
+            payload['use_ip_nt_range_tags'] = use_ip_nt_range_tag
+
+        if tag_set_exclude is not None:
+            payload['tag_exclude_selector'] = tag_exclude_selector
+            payload['tag_set_exclude'] = tag_set_exclude
 
         if scanners_in_tagset:
             payload['scanners_in_tagset'] = '1'
