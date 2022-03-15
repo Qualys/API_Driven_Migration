@@ -1,6 +1,6 @@
 import csv
 import xml.etree.ElementTree as ET
-from QualysCommon import QualysAPI
+from API_Driven_Migration.QualysCommon import QualysAPI
 
 
 # Appliance map should be in the format:
