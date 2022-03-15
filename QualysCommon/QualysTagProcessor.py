@@ -1,4 +1,4 @@
-from QualysCommon import QualysAPI
+from API_Driven_Migration.QualysCommon import QualysAPI
 import xml.etree.ElementTree as ET
 
 

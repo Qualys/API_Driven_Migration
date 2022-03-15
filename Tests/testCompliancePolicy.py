@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
-from QualysCommon import QualysAPI
-from QualysPC import QualysCompliancePolicyProcessor
+from API_Driven_Migration.QualysCommon import QualysAPI
+from API_Driven_Migration.QualysPC import QualysCompliancePolicyProcessor
 import copy
 
 

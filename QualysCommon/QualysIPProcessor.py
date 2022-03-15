@@ -1,4 +1,4 @@
-from QualysCommon import QualysAPI
+from API_Driven_Migration.QualysCommon import QualysAPI
 from xml.etree import ElementTree as ET
 
 # TODO Convert DNS and NETBIOS convert functions to use payload

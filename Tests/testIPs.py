@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 import sys
-from QualysCommon import QualysAPI, QualysIPProcessor
+from API_Driven_Migration.QualysCommon import QualysAPI, QualysIPProcessor
 
 
 def handleResponse(response: ET.Element):

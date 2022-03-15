@@ -1,5 +1,5 @@
-from QualysCommon import QualysAPI
-from QualysVM import QualysVMScanScheduleProcessor
+from API_Driven_Migration.QualysCommon import QualysAPI
+from API_Driven_Migration.QualysVM import QualysVMScanScheduleProcessor
 
 
 def testVMScanSchedule(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):

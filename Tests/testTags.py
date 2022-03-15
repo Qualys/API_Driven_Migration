@@ -1,4 +1,4 @@
-from QualysCommon import QualysAPI, QualysTagProcessor
+from API_Driven_Migration.QualysCommon import QualysAPI, QualysTagProcessor
 import xml.etree.ElementTree as ET
 
 def testTags(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):
