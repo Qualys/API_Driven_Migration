@@ -31,7 +31,7 @@ def get_configuration_profile(source_api: QualysAPI, id: str):
 
     resp = source_api.makeCall(url=url, method='GET')
 
-    return resp.find('data/AgentConfig')
+    return resp
 
 
 def create_configuration_profile(target_api: QualysAPI, config_profile: ElementTree.Element):
