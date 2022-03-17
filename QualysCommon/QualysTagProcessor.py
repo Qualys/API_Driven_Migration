@@ -232,6 +232,18 @@ def handleSystemParents(target_api: QualysAPI.QualysAPI, tags: ET.Element):
     return tags
 
 
+def prepareTags(tags: ET.Element):
+    for tag in tags.findall('.//Tag'):
+        if tag.find('id') is not None:
+            tag.remove(tag.find('id'))
+        if tag.find('created') is not None:
+            tag.remove(tag.find('created'))
+        if tag.find('modified') is not None:
+            tag.remove(tag.find('modified'))
+
+    return tags
+
+
 def createTags(api: QualysAPI.QualysAPI, tags: ET.Element):
     print('QualysTagProcessor: Creating Tags... ', end='')
     print('Consuming %s API calls... ' % str(len(tags.findall('./Tag'))))
