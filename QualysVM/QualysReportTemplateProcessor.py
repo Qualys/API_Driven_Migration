@@ -6,30 +6,47 @@ def responseHandler(response: ET.Element):
     return True
 
 
-def getReportTemplates(source_api: QualysAPI.QualysAPI):
+def getScanReportTemplates(source_api: QualysAPI.QualysAPI):
     scanurl = '%s/api/2.0/fo/report/template/scan/?action=export&report_format=xml' % source_api.server
-    pciurl = '%s/api/2.0/fo/report/template/pciscan/?action=export&report_format=xml' % source_api.server
-    patchurl = '%s/api/2.0/fo/report/template/patch/?action=export&report_format=xml' % source_api.server
-    mapurl = '%s/api/2.0/fo/report/template/map/?action=export&report_format=xml' % source_api.server
-
-    print('Getting Scan Templates')
     scantemplates = source_api.makeCall(url=scanurl, method='GET')
     if not responseHandler(scantemplates):
         print('ERROR: Could not get Scan Templates')
-    print('Getting PCI Templates')
+        scantemplates = None
+    return scantemplates
+
+
+def getPCIReportTemplates(source_api: QualysAPI.QualysAPI):
+    pciurl = '%s/api/2.0/fo/report/template/pciscan/?action=export&report_format=xml' % source_api.server
     pcitemplates = source_api.makeCall(url=pciurl, method='GET')
-    if not responseHandler(scantemplates):
+    if not responseHandler(pcitemplates):
         print('ERROR: Could not get PCI Templates')
+        pcitemplates = None
+    return pcitemplates
 
-    print('Getting Patch Templates')
+
+def getPatchReportTemplates(source_api: QualysAPI.QualysAPI):
+    patchurl = '%s/api/2.0/fo/report/template/patch/?action=export&report_format=xml' % source_api.server
     patchtemplates = source_api.makeCall(url=patchurl, method='GET')
-    if not responseHandler(scantemplates):
+    if not responseHandler(patchtemplates):
         print('ERROR: Could not get Patch Templates')
+        patchtemplates = None
+    return patchtemplates
 
-    print('Getting Map Templates')
+
+def getMapReportTemplates(source_api: QualysAPI.QualysAPI):
+    mapurl = '%s/api/2.0/fo/report/template/map/?action=export&report_format=xml' % source_api.server
     maptemplates = source_api.makeCall(url=mapurl, method='GET')
-    if not responseHandler(scantemplates):
+    if not responseHandler(maptemplates):
         print('ERROR: Could not get Map Templates')
+        maptemplates = None
+    return maptemplates
+
+
+def getReportTemplates(source_api: QualysAPI.QualysAPI):
+    scantemplates = getScanReportTemplates(source_api=source_api)
+    pcitemplates = getPCIReportTemplates(source_api=source_api)
+    patchtemplates = getPatchReportTemplates(source_api=source_api)
+    maptemplates = getMapReportTemplates(source_api=source_api)
 
     templates = {'scan': scantemplates,
                  'pci': pcitemplates,
@@ -41,14 +58,11 @@ def getReportTemplates(source_api: QualysAPI.QualysAPI):
 
 def convertScanTemplate(scantemplate: ET.Element):
     url = '/api/2.0/fo/report/template/scan/'
-
-    payload = {'action': 'create', 'report_format': 'brokeAF'}
-
-    # Title
-    payload['title'] = scantemplate.find('TITLE/INFO[@key="title"]').text
+    payload = {'action': 'create', 'report_format': 'XML',
+               'title': scantemplate.find('TITLE/INFO[@key="title"]').text,
+               'scan_selection': scantemplate.find('TARGET/INFO[@key="scan_selection"]').text}
 
     # Target
-    payload['scan_selection'] = scantemplate.find('TARGET/INFO[@key="scan_selection"]').text
     if scantemplate.find('TARGET/INFO[@key="include_trending"]') is not None:
         payload['include_trending'] = scantemplate.find('TARGET/INFO[@key="include_trending"]').text
     if scantemplate.find('TARGET/INFO[@key="limit_timeframe"]') is not None:
