@@ -50,13 +50,16 @@ def create_configuration_profile(target_api: QualysAPI, config_profile: ElementT
 def prepare_configuration_profile(config_profile: ElementTree.Element):
     config_profile.remove(config_profile.find('id'))
     config_profile.remove(config_profile.find('createdDate'))
-    config_profile.remove(config_profile.find('createdBy'))
-    config_profile.remove(config_profile.find('totalAgents'))
+    if config_profile.find('createdBy') is not None:
+        config_profile.remove(config_profile.find('createdBy'))
+    if config_profile.find('totalAgents') is not None:
+        config_profile.remove(config_profile.find('totalAgents'))
     for config_tag in config_profile.findall('.//ConfigTag'):
         config_tag.remove(config_tag.find('id'))
         config_tag.remove(config_tag.find('uuid'))
-    config_profile.find('tags').remove(config_profile.find('tags/tagSetUuid'))
-    if config_profile.find('tags/excludeResolution') is None:
+    if config_profile.find('tags/tagSetUuid') is not None:
+        config_profile.find('tags').remove(config_profile.find('tags/tagSetUuid'))
+    if config_profile.find('tags/excludeResolution') is not None:
         exc_res = ElementTree.SubElement(config_profile.find('tags'), 'excludeResolution')
         exc_res.text = 'ANY'
 
