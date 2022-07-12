@@ -6,7 +6,7 @@ def responseHandler(resp: ET.Element):
     return True
 
 
-def getAppliances(source_api: QualysAPI.QualysAPI, appliances: list = None):
+def getAppliances(source_api: QualysAPI.QualysAPI):
     fullurl = '%s/api/2.0/fo/appliance/?action=list&output_mode=full' % source_api.server
 
     resp = source_api.makeCall(url=fullurl)
