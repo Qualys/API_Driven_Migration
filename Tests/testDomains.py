@@ -1,5 +1,5 @@
-from QualysVM import QualysDomainProcessor
-from QualysCommon import QualysAPI
+from API_Driven_Migration.QualysVM import QualysDomainProcessor
+from API_Driven_Migration.QualysCommon import QualysAPI
 
 
 def testDomains(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):

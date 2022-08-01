@@ -1,12 +1,42 @@
 import xml.etree.ElementTree as ET
-from QualysCommon import QualysAPI
+from API_Driven_Migration.QualysCommon import QualysAPI
 
 
 def responseHandler(resp: ET.Element):
     return True
 
 
-def getAppliances(source_api: QualysAPI.QualysAPI, appliances: list = None):
+def getVLANs(appliance: ET.Element):
+    vlans = []
+    if len(appliance.findall('.//VLAN')) == 0:
+        return None
+    for vlan in appliance.findall('.//VLAN'):
+        vlan_string = '%s|%s|%s|%s' % (
+            vlan.find('ID').text,
+            vlan.find('IP_ADDRESS').text,
+            vlan.find('NETMASk').text,
+            vlan.find('NAME').text
+        )
+        vlans.append(vlan_string)
+    return vlans
+
+
+def getStaticRoutes(appliance: ET.Element):
+    routes = []
+    if appliance.find('STATIC_ROUTES') is None:
+        return None
+    for route in appliance.findall('.//ROUTE'):
+        route_string = '%s|%s|%s|%s' % (
+            route.find('IP_ADDRESS').text,
+            route.find('NETMASK').text,
+            route.find('GATEWAY').text,
+            route.find('NAME').text
+        )
+        routes.append(route_string)
+    return routes
+
+
+def getAppliances(source_api: QualysAPI.QualysAPI):
     fullurl = '%s/api/2.0/fo/appliance/?action=list&output_mode=full' % source_api.server
 
     resp = source_api.makeCall(url=fullurl)

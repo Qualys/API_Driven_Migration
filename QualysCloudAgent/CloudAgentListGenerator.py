@@ -1,13 +1,12 @@
-from QualysCommon import QualysAPI
-import argparse
+from API_Driven_Migration.QualysCommon import QualysAPI
 from xml.etree import ElementTree as ET
 import json
 
 
 def getActivationKeys(api: QualysAPI.QualysAPI):
-    fullurl='%s/qps/rest/1.0/search/ca/agentactkey/' % api.server
+    fullurl = '%s/qps/rest/1.0/search/ca/agentactkey/' % api.server
     startat = 1
-    pagesize=1000
+    pagesize = 1000
     keys = []
     endofdata = False
 
@@ -119,33 +118,4 @@ def compareActivationKeys(src_key: dict, tgt_key: dict):
             return False
 
     return True
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('source_username', help='API Username in source subscription')
-    parser.add_argument('source_password', help='API User Password in source subscription')
-    parser.add_argument('source_api_url', help='URL of the API service in the source subscription'
-                                               '(e.g. https://qualysapi.qualys.com)')
-    parser.add_argument('target_username', help='API Username in target subscription')
-    parser.add_argument('target_password', help='API User Password in target subscription')
-    parser.add_argument('target_api_url', help='URL of the API service in the target subscription'
-                                               '(e.g. https://qualysapi.qg2.apps.qualys.com)')
-
-    parser.add_argument('-p', '--proxyenable', action='store_true', help='Use HTTPS Proxy (required -u or --proxyurl')
-    parser.add_argument('-u', '--proxyurl', help='Proxy URL (requires -p or --proxyenable)')
-    parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output')
-    parser.add_argument('-s', '--simulate', action='store_true', help='Simulate - obtain data from source, do not send '
-                                                                      'to target')
-
-    args = parser.parse_args()
-
-    src_api = QualysAPI.QualysAPI(svr=args.source_api_url, usr=args.source_username, passwd=args.source_password,
-                                  proxy=args.proxyurl, enableProxy=args.proxyenable, debug=args.debug)
-
-    tgt_api = QualysAPI.QualysAPI(svr=args.target_api_url, usr=args.target_username, passwd=args.target_password,
-                                  proxy=args.proxyurl, enableProxy=args.proxyenable, debug=args.debug)
-
-    src_keys = getActivationKeys(api=src_api)
-    tgt_keys = getActivationKeys(api=tgt_api)
 

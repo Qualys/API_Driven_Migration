@@ -1,4 +1,4 @@
-from QualysCommon import QualysAPI, QualysAssetGroupProcessor, QualysNetworkProcessor, QualysApplianceInput
+from API_Driven_Migration.QualysCommon import QualysAPI, QualysAssetGroupProcessor, QualysNetworkProcessor, QualysApplianceInput
 
 
 def testAssetGroups(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False,

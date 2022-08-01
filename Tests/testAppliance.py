@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from QualysCommon import QualysAPI, QualysApplianceProcessor
+from API_Driven_Migration.QualysCommon import QualysAPI, QualysApplianceProcessor
 
 
 def testAppliances(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, appliances: list = None,

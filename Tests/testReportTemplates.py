@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
-from QualysVM import QualysReportTemplateProcessor
-from QualysCommon import QualysAPI
+from API_Driven_Migration.QualysVM import QualysReportTemplateProcessor
+from API_Driven_Migration.QualysCommon import QualysAPI
 
 
 def testReportTemplates(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):

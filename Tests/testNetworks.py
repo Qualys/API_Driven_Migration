@@ -1,4 +1,4 @@
-from QualysCommon import QualysAPI, QualysNetworkProcessor
+from API_Driven_Migration.QualysCommon import QualysAPI, QualysNetworkProcessor
 
 
 def testNetworks(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):

@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from QualysCommon import QualysAPI, QualysOptionProfileProcessor
+from API_Driven_Migration.QualysCommon import QualysAPI, QualysOptionProfileProcessor
 
 
 def testOptionProfiles(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):

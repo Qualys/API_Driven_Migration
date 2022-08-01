@@ -1,4 +1,4 @@
-from QualysCommon import QualysAPI, QualysSubscriptionProcessor
+from API_Driven_Migration.QualysCommon import QualysAPI, QualysSubscriptionProcessor
 import xml.etree.ElementTree as ET
 
 def testSubscription(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):

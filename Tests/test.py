@@ -1,6 +1,6 @@
 import argparse
 import sys
-from QualysCommon import QualysAPI
+from API_Driven_Migration.QualysCommon import QualysAPI
 import testTags
 import testSubscription
 import testIPs

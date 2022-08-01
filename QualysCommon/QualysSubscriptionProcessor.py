@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from QualysCommon import QualysAPI
+from API_Driven_Migration.QualysCommon import QualysAPI
 
 
 def exportSubscriptionConfig(api: QualysAPI.QualysAPI):

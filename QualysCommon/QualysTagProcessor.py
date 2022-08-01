@@ -1,4 +1,4 @@
-from QualysCommon import QualysAPI
+from API_Driven_Migration.QualysCommon import QualysAPI
 import xml.etree.ElementTree as ET
 
 
@@ -229,6 +229,18 @@ def handleSystemParents(target_api: QualysAPI.QualysAPI, tags: ET.Element):
                 # then add it to the new parent
                 asp_tagset.append(as_tag)
     tags.remove(as_tree)
+    return tags
+
+
+def prepareTags(tags: ET.Element):
+    for tag in tags.findall('.//Tag'):
+        if tag.find('id') is not None:
+            tag.remove(tag.find('id'))
+        if tag.find('created') is not None:
+            tag.remove(tag.find('created'))
+        if tag.find('modified') is not None:
+            tag.remove(tag.find('modified'))
+
     return tags
 
 

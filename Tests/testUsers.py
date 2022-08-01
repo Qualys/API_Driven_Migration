@@ -1,4 +1,4 @@
-from QualysCommon import QualysAPI, QualysUserProcessor
+from API_Driven_Migration.QualysCommon import QualysAPI, QualysUserProcessor
 
 
 def testUsers(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI, simulate: bool = False):
