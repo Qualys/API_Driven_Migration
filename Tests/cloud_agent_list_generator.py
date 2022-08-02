@@ -1,7 +1,7 @@
 import json
 import argparse
-from API_Driven_Migration.QualysCommon.QualysAPI import QualysAPI
-from API_Driven_Migration.QualysCloudAgent import CloudAgentListGenerator
+from QualysCommon.QualysAPI import QualysAPI
+from QualysCloudAgent import CloudAgentListGenerator
 from sys import exit
 from getpass import getpass
 
