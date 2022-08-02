@@ -31,7 +31,7 @@ def getActivationKeys(api: QualysAPI.QualysAPI):
 
 
 def getAssets(api: QualysAPI.QualysAPI, key: str):
-    fullurl = '%s/qps/rest/2.0/search/am/hostasset/?fields=name,agentInfo.agentId' % api.server
+    fullurl = '%s/qps/rest/2.0/search/am/hostasset/?fields=name,agentInfo.agentId,agentInfo.platform' % api.server
     startat = 1
     pagesize = 1000
     assets = []
