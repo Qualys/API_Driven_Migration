@@ -66,7 +66,7 @@ def _safefindlist(xml: ET.Element, findstr: str):
 
 
 def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool = False,
-                         dist_group_map: dict = None):
+                         dist_group_map: dict = None, network_map: dict = None):
 
     requeststr = 'api/2.0/fo/schedule/scan/'
     payload = {'action': 'create',
@@ -278,7 +278,10 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool 
 
     # Networks ID
     if scan.find('NETWORK_ID') is not None:
-        payload['ip_network_id'] = scan.find('NETWORK_ID').text
+        if network_map is None:
+            payload['ip_network_id'] = scan.find('NETWORK_ID').text
+        else:
+            payload['ip_network_id'] = network_map[scan.find('NETWORK_ID').text]
 
     # EC2 targets
     if scan.find('CLOUD_DETAILS/CONNECTOR/NAME') is not None:
