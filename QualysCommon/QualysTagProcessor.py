@@ -1,8 +1,18 @@
-from API_Driven_Migration.QualysCommon import QualysAPI
+from QualysCommon import QualysAPI
 import xml.etree.ElementTree as ET
 
 
 def checkResponse(resp: ET.Element):
+    """
+    Checks an API response for errors
+
+    Parameters:
+        resp:           A document of type xml.etree.ElementTree.Element containing a full API response
+
+    Returns:
+        True           If the XML does not contain an error
+        False          If the XML contains an error
+    """
     if resp.tag is None:
         # We don't have a ServiceResponse element, so this isn't a valid response
         print('\n\nAPI ERROR: Invalid XML returned')
@@ -26,6 +36,18 @@ def checkResponse(resp: ET.Element):
 
 
 def getTagSet(api: QualysAPI.QualysAPI, sr: ET.Element):
+    """
+    Submits an API call to obtain a TagSet
+
+    Parameters:
+        api:        An object of the class QualysAPI
+        sr:         A document of type xml.etree.ElementTree.Element containing a valid ServiceRequest
+
+    Returns:
+        resp:       If the response does not contain an error, returns a document of type xml.etree.ElementTree.Element
+                    containing the full API response
+        None        If the response contains an error
+    """
     fullurl = '%s/qps/rest/2.0/search/am/tag' % api.server
     payload = ET.tostring(sr, method='html', encoding='utf-8').decode()
 
@@ -35,7 +57,21 @@ def getTagSet(api: QualysAPI.QualysAPI, sr: ET.Element):
     return resp
 
 
-def getTags(api: QualysAPI.QualysAPI, filterlist=None):
+def getTags(api: QualysAPI.QualysAPI, filterlist: list = None):
+    """
+    Submits an API call to get all tags in a subscription, optionally filtered with a list of filter specifications
+
+    Parameters:
+        api:            An object of the class QualysAPI
+        filterlist:     An optional parameter specifying a list of filter criteria in the format
+                        [
+                            [ "Criteria 1 Field", "Criteria 1 Operator", "Criteria 1 Value" ]
+                            [ "Criteria 2 Field", "Criteria 2 Operator", "Criteria 2 Value" ]
+                        ]
+
+    Returns:
+        tags:           A XML document of type xml.etree.ElementTree.Element containing the tag data
+    """
     tags: ET.Element
     offset = 1
     limit = 100
@@ -96,6 +132,16 @@ def getTags(api: QualysAPI.QualysAPI, filterlist=None):
 
 
 def pruneSystemTags(tags: ET.Element):
+    """
+    Remove system-managed tags from downloaded tags list
+
+    Parameters:
+        tags:           A document of type xml.etree.ElementTree.Elements containing downloaded tag data
+
+    Returns:
+        tags:           A document of type xml.etree.ElementTree.Elements containing tag data with system-managed
+                        tags removed
+    """
     print('QualysTagProcessor: Pruning system-generated tags... ', end='')
     for n in ['Business Units', 'Asset Groups']:
         # Find named system tag
@@ -133,6 +179,16 @@ def pruneSystemTags(tags: ET.Element):
 
 
 def restructureTags(tags: ET.Element):
+    """
+    Restructures downloaded tag data to move full tag data into parent/child tag structures.  A pre-requisite for
+    using downloaded tag data to recreate tag hierarchy and structure
+
+    Parameters:
+        tags:       A document of type xml.etree.ElementTree.Element containing downloaded tag data
+
+    Returns:
+        tags:       A document of type xml.etree.ElementTree.Element containing restructured tag data
+    """
     print('QualysTagProcessor: Restructuring Tags... ', end='')
     # For each list node
     for listnode in tags.findall('.//*list'):
@@ -172,6 +228,18 @@ def restructureTags(tags: ET.Element):
 
 
 def handleSystemParents(target_api: QualysAPI.QualysAPI, tags: ET.Element):
+    """
+    Reparents user-created children of system-managed tags to allow removal of system-managed tags using
+    pruneSystemTags()
+
+    Parameters:
+        target_api:     An object of type QualysAPI
+        tags:           A document of type xml.etree.ElementTree.Element containing tag data
+
+    Returns:
+        tags:           A document of type xml.etree.ElementTree.Element containing tag data with children of
+                        system-managed tags reparented to new tags
+    """
     # Cloud Agent and Asset Search tags are a special case
     # The parent is system-generated however children are user-generated
     # For Cloud Agent tags we simply re-parent the children to the target's Cloud Agent tag
@@ -233,6 +301,17 @@ def handleSystemParents(target_api: QualysAPI.QualysAPI, tags: ET.Element):
 
 
 def prepareTags(tags: ET.Element):
+    """
+    Prepare tag data for submission in a ServiceRequest as part of an API call to create tag hierarchy from
+    downloaded, restructured, reparented and pruned tag data.  Removes id, created and modified tag fields.
+
+    Parameters:
+        tags:       A document of type xml.etree.Element.ElementTree containing tag data
+
+    Returns:
+        tags:       A document of type xml.etree.Element.ElementTree containing tag data with id, created and modified
+                    elements removed
+    """
     for tag in tags.findall('.//Tag'):
         if tag.find('id') is not None:
             tag.remove(tag.find('id'))
@@ -245,6 +324,17 @@ def prepareTags(tags: ET.Element):
 
 
 def createTags(api: QualysAPI.QualysAPI, tags: ET.Element):
+    """
+    Create tag hierarchies from downloaded, restructured, reparented, pruned and prepared tag data.  Makes a single API
+    call per top-level tag to include all child tags.
+
+    Parameters:
+        api:        An object of class QualysAPI
+        tags:       A document of type xml.etree.Element.ElementTree containing tag data
+
+    Returns:
+        True
+    """
     print('QualysTagProcessor: Creating Tags... ', end='')
     print('Consuming %s API calls... ' % str(len(tags.findall('./Tag'))))
 
@@ -281,6 +371,16 @@ def createTags(api: QualysAPI.QualysAPI, tags: ET.Element):
 
 
 def createSingleTag(api: QualysAPI.QualysAPI, tag: ET.Element):
+    """
+    Creates a single tag from tag data
+
+    Parameters:
+        api:        An object of class QualysAPI
+        tag:        A document of type xml.etree.Element.ElementTree containing tag data for a single tag
+
+    Returns:
+        resp:       A document of type xml.etree.Element.ElementTree containing the full API response
+    """
     sr = ET.Element('ServiceRequest')
     srdata = ET.SubElement(sr, 'data')
     srdata.append(tag)
@@ -295,6 +395,17 @@ def createSingleTag(api: QualysAPI.QualysAPI, tag: ET.Element):
 
 
 def reparentTag(tags: ET.Element, parentname: str):
+    """
+    Reparents all tags in a tag set to a new parent tag
+
+    Parameters:
+        tags:       A document of type xml.etree.Element.ElementTree containing tag data
+        parentname: The name of the new parent tag
+
+    Returns:
+          newdata:  A document of type xml.etree.Element.ElementTree containing reparented tag data
+
+    """
     print('QualysTagProcessor: Reparenting Tags...', end='')
     newdata = ET.Element('data')
     newparent = ET.SubElement(newdata, 'Tag')

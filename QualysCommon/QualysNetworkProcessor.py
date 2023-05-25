@@ -1,4 +1,4 @@
-from API_Driven_Migration.QualysCommon import QualysAPI
+from QualysCommon import QualysAPI
 
 
 def responseHandler(response):
@@ -10,6 +10,15 @@ def responseHandler(response):
 
 
 def getNetworks(source_api: QualysAPI.QualysAPI):
+    """
+    Get a list of Networks from a subscription
+
+    Parameters:
+        source_api:     An object of the class QualysAPI
+
+    Returns:
+         networks:      A python dictionary containing the Networks where the ID is the key and the Name is the value
+    """
     fullurl = '%s/api/2.0/fo/network/?action=list' % source_api.server
     resp = source_api.makeCall(url=fullurl)
     if not responseHandler(resp):
@@ -26,6 +35,18 @@ def getNetworks(source_api: QualysAPI.QualysAPI):
 
 
 def createNetworks(target_api: QualysAPI.QualysAPI, networks: dict):
+    """
+    Creates Networks in a subscription from a list of networks obtained with getNetworks(), and creates a Network
+    Map linking source and target network IDs
+
+    Parameters:
+        target_api:         An object of the class QualysAPI
+        networks:           A python dictionary containing Networks data, as obtained with getNetworks()
+
+    Returns:
+        netmap:             A python dictionary containing the Network Map where the old Network ID is the key and
+                            then new Network ID is the target
+    """
     # Creates Networks defined in the networks dictionary parameter
     # Returns a dictionary network mapping {oldID: newID, ...}
     # Returns None on any failure
@@ -42,6 +63,17 @@ def createNetworks(target_api: QualysAPI.QualysAPI, networks: dict):
 
 
 def generateNetworkMap(source_api: QualysAPI.QualysAPI, target_api: QualysAPI.QualysAPI):
+    """
+    Generates a Network Map linking old Network IDs to new Network IDs
+
+    Parameters:
+        source_api:         An object of the class QualysAPI
+        target_api:         An object of the class QualysAPI
+
+    Returns:
+        netmap:             A python dictionary containing the Network Map where the old Network ID is the key and
+                            then new Network ID is the target
+    """
     srcurl = '%s/api/2.0/fo/network/?action=list' % source_api.server
     tgturl = '%s/api/2.0/fo/network/?action=list' % target_api.server
 

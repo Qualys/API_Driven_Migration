@@ -1,13 +1,24 @@
 import xml.etree.ElementTree as ET
-from API_Driven_Migration.QualysCommon import QualysAPI
+from QualysCommon import QualysAPI
 from datetime import datetime
 from urllib import parse
+
 
 def responseHandler(resp: ET.Element):
     return True
 
 
 def getStaticSearchLists(source_api: QualysAPI.QualysAPI, ids: str = None):
+    """
+    Get static search lists from a subscription
+
+    Parameters:
+        source_api:         An object of the class QualysAPI
+        ids:                (Optional) A string value containing a comma-separated list of Search List IDs to get
+
+    Returns:
+        A document of type xml.etree.ElementTree.Element which contains the STATIC_LISTS element from the API response
+    """
     fullurl = '%s/api/2.0/fo/qid/search_list/static/?action=list' % source_api.server
     if ids is not None:
         fullurl = '%s&ids=%s' % (fullurl, ids)
@@ -19,6 +30,16 @@ def getStaticSearchLists(source_api: QualysAPI.QualysAPI, ids: str = None):
 
 
 def getDynamicSearchLists(source_api: QualysAPI.QualysAPI, ids: str = None):
+    """
+    Get dynamic search lists from a subscription
+
+    Parameters:
+        source_api:         An object of the class QualysAPI
+        ids:                (Optional) A string value containing a comma-separated list of Search List IDs to get
+
+    Returns:
+        A document of type xml.etree.ElementTree.Element which contains the DYNAMIC_LISTS element from the API response
+    """
     fullurl = '%s/api/2.0/fo/qid/search_list/dynamic/?action=list&show_option_profiles=0&show_distribution_groups=0&' \
               'show_report_templates=0&show_remediation_policies=0&show_qids=0' % source_api.server
     if ids is not None:
@@ -31,6 +52,22 @@ def getDynamicSearchLists(source_api: QualysAPI.QualysAPI, ids: str = None):
 
 
 def convertModifiedFilters(modstring: str, modtype: str, payload: dict = None):
+    """
+    Convert Search List criteria into a format accepted in an API request, either in payload or URL format.  Used by
+    convertDynamicSearchList() and createDynamicSearchList
+
+    Parameters:
+        modstring:          A string containing the text of the criteria to convert
+        modtype:            A string containing the type of criteria to convert
+        payload:            (Optional) A python dictionary containing payload data to update with the
+                            converted criteria data
+
+    Returns:
+        url:                If no payload parameter is passed, returns the modified criteria in URL format
+        OR
+        payload:            If a payload parameter is passed, returns the updated payload containing the modified
+                            criteria
+    """
     modstr = ''
     strelements = modstring.split(' ')
     if strelements[0] == 'NOT':
@@ -89,6 +126,21 @@ def convertModifiedFilters(modstring: str, modtype: str, payload: dict = None):
 
 
 def convertOther(otherstring: str, payload: dict = None):
+    """
+    Convert non-modifier elements of a search list into a format accepted by an API call.  Used by
+    convertDynamicSearchList() and createDynamicSearchList()
+
+    Parameters:
+        otherstring:            A string value comma-delimited list of the parameters to convert
+        payload:                (Optional) A python dictionary containing payload data to update with the converted
+                                parameter
+
+    Returns:
+        retstr:                 If no payload parameter passed, the converted parameters in URL format
+        OR
+        payload:                If a payload parameter was passed, the updated payload containing the modified
+                                parameters
+    """
     retstr = ''
     elist = otherstring.split(', ')
     if 'Not exploitable due to configuration' in elist:
@@ -113,6 +165,20 @@ def convertOther(otherstring: str, payload: dict = None):
 
 
 def createDynamicSearchList(target_api: QualysAPI.QualysAPI, searchlist: ET.Element, simulate: bool = False):
+    """
+    Create a dynamic search list from a source XML document
+
+    Parameters:
+        target_api:             An object of class QualysAPI
+        searchlist:             A document of type xml.etree.ElementTree.Element containing the search list
+                                data
+        simulate:               If True, outputs the URL to the console and does not make the API call to create
+                                the search list
+                                If False, makes the API call to create the search list
+
+    Returns:
+         resp:                  A document of type xml.etree.ElementTree.Element containing the full API response
+    """
     searchliststr = ''
     # criteria = searchlist.find('CRITERIA')
     criteria_map = {
@@ -251,6 +317,19 @@ def createDynamicSearchList(target_api: QualysAPI.QualysAPI, searchlist: ET.Elem
 
 
 def convertDynamicSearchList(searchlist: ET.Element):
+    """
+    Converts a dynamic search list from XML format to URL/Payload format, excluding the FQDN
+
+    Parameters:
+        searchlist:             A document of type xml.etree.ElementTree.Element containing the search list data
+
+    Returns:
+        None, None              If an error is encountered during conversion of the XML data
+        url, payload:
+            url:                A string containing the URL, excluding the FQDN, of the API call to create the
+                                dynamic search list
+            payload:            A python dictionary containing the payload data to be used in the API call
+    """
     searchliststr = ''
     url = '/api/2.0/fo/qid/search_list/dynamic/'
     payload = {'action': 'create'}
@@ -384,6 +463,20 @@ def convertDynamicSearchList(searchlist: ET.Element):
 
 
 def convertStaticSearchList(searchlist: ET.Element):
+    """
+    Converts a static search list from XML format to URL/Payload format, excluding the FQDN
+
+    Parameters:
+        searchlist:             A document of type xml.etree.ElementTree.Element containing the search list data
+
+    Returns:
+        None, None              If an error is encountered during conversion of the XML data
+        url, payload:
+            url:                A string containing the URL, excluding the FQDN, of the API call to create the
+                                dynamic search list
+            payload:            A python dictionary containing the payload data to be used in the API call
+    """
+
     comments = ''
     is_global = '0'
     qidlist = []
@@ -408,6 +501,20 @@ def convertStaticSearchList(searchlist: ET.Element):
 
 
 def createStaticSearchList(target_api: QualysAPI.QualysAPI, searchlist: ET.Element, simulate: bool = False):
+    """
+    Create a static search list from a source XML document
+
+    Parameters:
+        target_api:             An object of class QualysAPI
+        searchlist:             A document of type xml.etree.ElementTree.Element containing the search list
+                                data
+        simulate:               If True, outputs the URL to the console and does not make the API call to create
+                                the search list
+                                If False, makes the API call to create the search list
+
+    Returns:
+         resp:                  A document of type xml.etree.ElementTree.Element containing the full API response
+    """
     comments = ''
     isGlobal = '0'
     qidlist = []

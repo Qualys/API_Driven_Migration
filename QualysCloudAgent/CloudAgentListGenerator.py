@@ -1,9 +1,18 @@
-from API_Driven_Migration.QualysCommon import QualysAPI
+from QualysCommon import QualysAPI
 from xml.etree import ElementTree as ET
 import json
 
 
 def getActivationKeys(api: QualysAPI.QualysAPI):
+    """
+    Obtains from a subscription the list of Cloud Agent Activation Keys
+
+    Parameters:
+        api:        An object of the class QualysAPI
+
+    Returns:
+        keys:       A list containing the Cloud Agent Activation Keys in JSON format
+    """
     fullurl = '%s/qps/rest/1.0/search/ca/agentactkey/' % api.server
     startat = 1
     pagesize = 1000
@@ -31,6 +40,16 @@ def getActivationKeys(api: QualysAPI.QualysAPI):
 
 
 def getAssets(api: QualysAPI.QualysAPI, key: str):
+    """
+    Obtains the Cloud Agent asset data for assets registered under a given Cloud Agent Activation Key
+
+    Parameters:
+        api:        An object of the class QualysAPI
+        key:        A string value containing the Activation Key UUID
+
+    Returns:
+        assets:     A list containing the assets registered under the given Cloud Agent Activation Key
+    """
     fullurl = '%s/qps/rest/2.0/search/am/hostasset/?fields=name,agentInfo.agentId,agentInfo.platform' % api.server
     startat = 1
     pagesize = 1000
@@ -62,7 +81,21 @@ def getAssets(api: QualysAPI.QualysAPI, key: str):
 
 
 def outputList(assets: list, keyid: str):
-    outfile = "%s.txt" % keyid
+    """
+    Writes the Cloud Agent asset data in CSV format, in preparation for Cloud Agent migration.
+
+    Parameters:
+        assets:     List of assets as provided by getAssets
+        keyid:      A string value containing the UUID of the target Cloud Agent Activation Key to which the
+                    assets will be reassigned
+
+    Returns:
+        Nothing
+
+    Outputs:
+        keyid.csv:  Where 'keyid' is the value of the passed 'keyid' parameter
+    """
+    outfile = "%s.csv" % keyid
     with open(outfile, 'w') as f:
         for asset in assets:
             print("%s : %s" % (asset["HostAsset"]["agentInfo"]["agentId"], asset["HostAsset"]["name"]), file=f)
@@ -70,6 +103,17 @@ def outputList(assets: list, keyid: str):
 
 
 def createActivationKey(api: QualysAPI.QualysAPI, activationKey: dict):
+    """
+    Creates a new Cloud Agent Activation Key
+
+    Parameters:
+         api:               Object of the QualysAPI class
+         activationKey:     Python Dictionary containing the details of the new Activation Key.  Can be a single
+                            Activation Key from the list provided by getActivationKeys()
+
+    Returns:
+          resp:             The HTTP response from the API request to create the new Activation Key
+    """
     fullurl = '%s/qps/rest/1.0/create/ca/agentactkey/' % api.server
     sr = ET.Element('ServiceRequest')
     data = ET.SubElement(sr, 'data')
@@ -101,6 +145,19 @@ def createActivationKey(api: QualysAPI.QualysAPI, activationKey: dict):
 
 
 def compareActivationKeys(src_key: dict, tgt_key: dict):
+    """
+    Compares the names and activated modules of two Cloud Agent Activation Keys to ensure compatibility for migration
+
+    Parameters:
+        src_key:            A dictionary object containing the data for a single Cloud Agent Activation Key from the
+                            source subscription, as obtained by getActivationKeys()
+        tgt_key:            A dictionary object containing the data for a single Cloud Agent Activation Key from the
+                            target subscription, as obtained by getActivationKeys()
+
+    Returns:
+        True if names and activated modules match
+        False if names or activated modules do not match
+    """
     # Compare names
     if src_key["AgentActKey"]["name"] != tgt_key["AgentActKey"]["name"]:
         return False

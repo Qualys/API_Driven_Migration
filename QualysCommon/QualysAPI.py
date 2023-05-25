@@ -48,7 +48,8 @@ class QualysAPI:
 
         Convert a POD string to an API URL
 
-            pod         : String  : The Qualys Pod code ('US01', 'US02', 'US03', 'EU01', 'EU02' or 'IN01')
+            pod         : String  : The Qualys Pod code ('US01', 'US02', 'US03', 'US04', 'UK01', 'EU01', 'EU02',
+                                                         'AE01', 'AU01', 'CA01' or 'IN01')
 
     makeCall(url, payload, headers, retryCount)
 

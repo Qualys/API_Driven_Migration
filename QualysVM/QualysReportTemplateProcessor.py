@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from API_Driven_Migration.QualysCommon import QualysAPI
+from QualysCommon import QualysAPI
 
 
 def responseHandler(response: ET.Element):
@@ -7,6 +7,15 @@ def responseHandler(response: ET.Element):
 
 
 def getScanReportTemplates(source_api: QualysAPI.QualysAPI):
+    """
+    Get all Scan Report Templates from a subscription.
+
+    Parameters:
+        source_api:             An object of class QualysAPI
+
+    Returns:
+        scantemplates:          A document of type xml.etree.ElementTree.Element containing the full API response
+    """
     scanurl = '%s/api/2.0/fo/report/template/scan/?action=export&report_format=xml' % source_api.server
     scantemplates = source_api.makeCall(url=scanurl, method='GET')
     if not responseHandler(scantemplates):
@@ -16,6 +25,15 @@ def getScanReportTemplates(source_api: QualysAPI.QualysAPI):
 
 
 def getPCIReportTemplates(source_api: QualysAPI.QualysAPI):
+    """
+    Get all PCI Report Templates from a subscription
+
+    Parameters:
+        source_api:             An object of class QualysAPI
+
+    Returns:
+        pcitemplates:          A document of type xml.etree.ElementTree.Element containing the full API response
+    """
     pciurl = '%s/api/2.0/fo/report/template/pciscan/?action=export&report_format=xml' % source_api.server
     pcitemplates = source_api.makeCall(url=pciurl, method='GET')
     if not responseHandler(pcitemplates):
@@ -25,6 +43,15 @@ def getPCIReportTemplates(source_api: QualysAPI.QualysAPI):
 
 
 def getPatchReportTemplates(source_api: QualysAPI.QualysAPI):
+    """
+    Get all Patch Report Templates from a subscription
+
+    Parameters:
+        source_api:             An object of class QualysAPI
+
+    Returns:
+        patchtemplates:         A document of type xml.etree.ElementTree.Element containing the full API response
+    """
     patchurl = '%s/api/2.0/fo/report/template/patch/?action=export&report_format=xml' % source_api.server
     patchtemplates = source_api.makeCall(url=patchurl, method='GET')
     if not responseHandler(patchtemplates):
@@ -34,6 +61,15 @@ def getPatchReportTemplates(source_api: QualysAPI.QualysAPI):
 
 
 def getMapReportTemplates(source_api: QualysAPI.QualysAPI):
+    """
+    Get all Map Report Templates from a subscription
+
+    Parameters:
+        source_api:             An object of class QualysAPI
+
+    Returns:
+        maptemplates:          A document of type xml.etree.ElementTree.Element containing the full API response
+    """
     mapurl = '%s/api/2.0/fo/report/template/map/?action=export&report_format=xml' % source_api.server
     maptemplates = source_api.makeCall(url=mapurl, method='GET')
     if not responseHandler(maptemplates):
@@ -43,6 +79,17 @@ def getMapReportTemplates(source_api: QualysAPI.QualysAPI):
 
 
 def getReportTemplates(source_api: QualysAPI.QualysAPI):
+    """
+    Get all Report Templates from a subscription
+
+    Parameters:
+        source_api:         An object of class QualysAPI
+
+    Returns
+        templates:          A python dictionary containing the keys 'scan', 'pci', 'patch', and 'map' where the values
+                            of each are return values from getScanReportTemplates(), getPCIReportTemplates(),
+                            getPatchReportTemplates() and getMapReportTemplates() respectively
+    """
     scantemplates = getScanReportTemplates(source_api=source_api)
     pcitemplates = getPCIReportTemplates(source_api=source_api)
     patchtemplates = getPatchReportTemplates(source_api=source_api)
@@ -57,6 +104,21 @@ def getReportTemplates(source_api: QualysAPI.QualysAPI):
 
 
 def convertScanTemplate(scantemplate: ET.Element):
+    """
+    Convert a Scan Report Template from its XML format into a URL/payload, excluding the FQDN, with which to recreate
+    the template in a new subscription
+
+    Parameters:
+        scantemplate:           A document of type xml.etree.ElementTree.Element containing the XML data which defines
+                                the report template
+
+    Returns:
+        None                    If errors are encountered during the conversion
+        OR
+        url,payload:
+            url                 The URL, excluding the FQDN, of an API call to create a new Scan Template
+            payload             The payload to use in the API call
+    """
     url = '/api/2.0/fo/report/template/scan/'
     payload = {'action': 'create', 'report_format': 'XML',
                'title': scantemplate.find('TITLE/INFO[@key="title"]').text,
