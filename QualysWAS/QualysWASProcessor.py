@@ -1,10 +1,13 @@
-from API_Driven_Migration.QualysCommon import QualysAPI
+from QualysCommon import QualysAPI
 import xml.etree.ElementTree as ET
 
 
 def searchWebApplication(api: QualysAPI.QualysAPI, webappid: str = None, name: str = None, url: str = None,
                          tagname: str = None, tagid: int = None, createddate: str = None, updateddate: str = None,
                          isscheduled: bool = None, isscanned: bool = None, lastscanstatus: str = None):
+    """
+    NOT FULLY IMPLEMENTED
+    """
 
     sr = ET.Element('ServiceRequest')
     filters = ET.Element('filters')
@@ -84,6 +87,9 @@ def searchWebApplication(api: QualysAPI.QualysAPI, webappid: str = None, name: s
 
 
 def getWebApp(api: QualysAPI.QualysAPI, webappid: str):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/get/was/webapp/%s' % (api.server, webappid)
     resp = api.makeCall(method='GET', url=fullurl)
 
@@ -91,6 +97,9 @@ def getWebApp(api: QualysAPI.QualysAPI, webappid: str):
 
 
 def createWebApp(api: QualysAPI.QualysAPI, payloadxml: ET.Element):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/create/was/webapp' % api.server
     payload = ET.tostring(payloadxml, method='xml', encoding='utf-8').decode()
     resp = api.makeCall(url=fullurl, method='POST', payload=payload)
@@ -99,6 +108,9 @@ def createWebApp(api: QualysAPI.QualysAPI, payloadxml: ET.Element):
 
 
 def updateWebAppFromXML(api: QualysAPI.QualysAPI, payloadxml: ET.Element, webappid: int):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/update/was/webapp/%s' % (api.server, str(webappid))
     payload = ET.tostring(payloadxml, method='xml', encoding='utf-8').decode()
     resp = api.makeCall(url=fullurl, method='POST', payload=payload)
@@ -107,6 +119,9 @@ def updateWebAppFromXML(api: QualysAPI.QualysAPI, payloadxml: ET.Element, webapp
 
 
 def downloadSeleniumScript(api: QualysAPI.QualysAPI, webappid: str, scriptid: str):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/downloadSeleniumScript/was/webapp/' % api.server
     sr = ET.Element('ServiceRequest')
     filters = ET.SubElement(sr, 'filters')
@@ -130,6 +145,9 @@ def searchSchedule(api: QualysAPI.QualysAPI, scheduleid: str = None, name: str =
                    webappname: str = None, webappid: str = None, webapptags: str = None, webapptagsid: str = None,
                    invalid: bool = None, lastScan: bool = None, lastscandate: str = None, lastscanstatus: str = None,
                    multi: bool = None):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/search/was/wasscanschedule' % api.server
 
     sr = ET.Element('ServiceRequest')
@@ -242,6 +260,9 @@ def searchSchedule(api: QualysAPI.QualysAPI, scheduleid: str = None, name: str =
 
 
 def getSchedule(api: QualysAPI.QualysAPI, id: str):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/get/was/wasscanschedule/%s' % (api.server, id)
 
     resp = api.makeCall(url=fullurl, method='GET')
@@ -249,6 +270,9 @@ def getSchedule(api: QualysAPI.QualysAPI, id: str):
 
 
 def createScheduleFromXML(api: QualysAPI.QualysAPI, schedulexml: ET.Element):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/create/was/wasscanschedule' % api.server
     payload = ET.tostring(schedulexml, method='xml', encoding='utf-8').decode()
 
@@ -258,6 +282,9 @@ def createScheduleFromXML(api: QualysAPI.QualysAPI, schedulexml: ET.Element):
 
 
 def updateSchedule(api: QualysAPI.QualysAPI, schedulexml: ET.Element):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/update/was/wasscanschedule' % api.server
     payload = ET.tostring(schedulexml, method='xml', encoding='utf-8').decode()
 
@@ -268,6 +295,9 @@ def updateSchedule(api: QualysAPI.QualysAPI, schedulexml: ET.Element):
 
 def searchReport(api: QualysAPI.QualysAPI, name: str = None, tagsid: str = None, tagsname: str = None,
                  creationdate: str = None, reporttype: str = None, reportformat: str = None, status: str = None):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/search/was/report' % api.server
     payload = ""
 
@@ -325,18 +355,27 @@ def searchReport(api: QualysAPI.QualysAPI, name: str = None, tagsid: str = None,
 
 
 def getReport(api: QualysAPI.QualysAPI, reportid: int):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/get/was/report/%s' % (api.server, str(reportid))
     resp = api.makeCall(url=fullurl, method='GET')
     return resp
 
 
 def updateReport(api: QualysAPI.QualysAPI, reportid: int):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/update/was/report/%s' % (api.server, str(reportid))
     resp = api.makeCall(url=fullurl, method='GET')
     return resp
 
 
 def createReportFromXML(api: QualysAPI.QualysAPI, reportxml: ET.Element):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/create/was/report' % api.server
     sr = ET.Element('ServiceRequest')
     data = ET.SubElement(sr, 'data')
@@ -349,6 +388,9 @@ def createReportFromXML(api: QualysAPI.QualysAPI, reportxml: ET.Element):
 
 
 def createBaseReport(reporttype: str, reportname: str, reportformat: str = None, templateid: int = None):
+    """
+    NOT FULLY IMPLEMENTED
+    """
 
     sr = ET.Element('ServiceRequest')
     data = ET.SubElement(sr, 'data')
@@ -373,7 +415,9 @@ def createBaseReport(reporttype: str, reportname: str, reportformat: str = None,
 def createWebAppReport(api: QualysAPI.QualysAPI, reportname: str, webappids: str = None, reportformat: str = None,
                        templateid: int = None, tagincludeids: str = None, tagincludeopt: str = 'ANY',
                        tagexcludeids: str = None, tagexcludeopt: str = 'ANY'):
-
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/create/was/report' % api.server
 
     sr = createBaseReport(reporttype='WAS_WEBAPP_REPORT', reportname=reportname, reportformat=reportformat,
@@ -422,7 +466,9 @@ def createScanReport(api: QualysAPI.QualysAPI, reportname: str, targetscans: str
                      filterignoredreasons: str = None, displaycontents: str = None, displaygraphs: str = None,
                      displaygroups: str = None, rawlevels: str = None, filtersshowignored: bool = None,
                      reportformat: str = None, templateid: int = None):
-
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/create/was/report' % api.server
 
     sr = createBaseReport(reporttype='WAS_SCAN_REPORT',
@@ -515,7 +561,9 @@ def createScorecardReport(api: QualysAPI.QualysAPI, reportname: str, webappids: 
                           scandatestart: str = None, scandateend: str = None,
                           displaycontents: str = None, displaygraphs: str = None, displaygroups: str = None,
                           displayoptions: str = None):
-
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/create/was/report' % api.server
 
     sr = createBaseReport(reporttype='WAS_SCORECARD_REPORT',
@@ -627,8 +675,10 @@ def createCatalogReport(api: QualysAPI.QualysAPI, reportname: str, reportformat:
                         scandate_start: str = None, scandate_end: str = None,
                         display_contents: str = None, display_graphs: str = None, display_groups: str = None,
                         display_options: str = None):
-
     fullurl = '%s/qps/rest/3.0/create/was/report' % api.server
+    """
+    NOT FULLY IMPLEMENTED
+    """
     sr = createBaseReport(reporttype='WAS_CATALOG_REPORT',
                           reportname=reportname, reportformat=reportformat)
     report = sr.find('ServiceRequest/data/Report')
@@ -712,7 +762,9 @@ def searchOptionProfiles(api: QualysAPI.QualysAPI, profileid: str = None, profil
                          createddate: str = None, updateddate: str = None,
                          usedbywebapps: bool = None, usedbyschedules: bool = None,
                          ownername: str = None, owneruser: str = None):
-
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/search/was/optionprofile' % api.server
     sr = ET.Element('ServiceRequest')
     filters = ET.SubElement(sr, 'filters')
@@ -788,12 +840,18 @@ def searchOptionProfiles(api: QualysAPI.QualysAPI, profileid: str = None, profil
 
 
 def getOptionProfile(api: QualysAPI.QualysAPI, profileid: int):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/get/was/optionprofile/%s' % (api.server, str(profileid))
     resp = api.makeCall(url=fullurl, method='GET')
     return resp
 
 
 def createOptionProfileFromXML(api: QualysAPI.QualysAPI, profilexml: ET.Element):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/create/was/optionprofile' % api.server
     payload = ET.tostring(profilexml, method='xml', encoding='utf-8').decode()
 
@@ -802,10 +860,16 @@ def createOptionProfileFromXML(api: QualysAPI.QualysAPI, profilexml: ET.Element)
 
 
 def createOptionProfile(api: QualysAPI.QualysAPI):
+    """
+    NOT IMPLEMENTED
+    """
     pass
 
 
 def updateOptionProfile(api: QualysAPI.QualysAPI):
+    """
+    NOT IMPLEMENTED
+    """
     pass
 
 
@@ -813,6 +877,9 @@ def searchDNSOverride(api: QualysAPI.QualysAPI, recordid: str = None, recordname
                       tagid: str = None, tagname: str = None,
                       createddate: str = None, updateddate: str = None,
                       ownerid: str = None, ownername: str = None, owneruser: str = None):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/search/was/dnsoverride/' % api.server
     sr = ET.Element('ServiceRequest')
     filters = ET.SubElement(sr, 'filters')
@@ -881,12 +948,18 @@ def searchDNSOverride(api: QualysAPI.QualysAPI, recordid: str = None, recordname
 
 
 def getDNSOverride(api: QualysAPI.QualysAPI, recordid: int):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/get/was/dnsoverride/%s' % (api.server, str(recordid))
     resp = api.makeCall(url=fullurl)
     return resp
 
 
 def createDNSOverride(api: QualysAPI.QualysAPI, name: str, mappings: list, tagids: str = None):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/create/was/dnsoverride/' % api.server
     sr = ET.Element('ServiceRequest')
     data = ET.SubElement(sr, 'data')
@@ -918,6 +991,9 @@ def createDNSOverride(api: QualysAPI.QualysAPI, name: str, mappings: list, tagid
 def updateDNSOverride(api: QualysAPI.QualysAPI, name: str,
                       add_mappings: list = None, remove_mappings: list = None,
                       tagids: str = None):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/update/was/dnsoverride/' % api.server
     sr = ET.Element('ServiceRequest')
     data = ET.SubElement(sr, 'data')
@@ -963,6 +1039,9 @@ def searchAuthRecord(api: QualysAPI.QualysAPI, recordid: str = None, recordname:
                      createdate: str = None, updateddate: str = None,
                      lastscandate: str = None, lastscanauthstatus: str = None,
                      isused: bool = None, contents: str = None):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/search/was/webappauthrecord' % api.server
 
     sr = ET.Element('ServiceRequest')
@@ -1037,8 +1116,10 @@ def searchAuthRecord(api: QualysAPI.QualysAPI, recordid: str = None, recordname:
     return resp
 
 
-
 def getAuthRecord(api: QualysAPI.QualysAPI, recordid: int):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/get/was/webappauthrecord/%s' % (api.server, str(recordid))
 
     resp = api.makeCall(url=fullurl)
@@ -1046,6 +1127,9 @@ def getAuthRecord(api: QualysAPI.QualysAPI, recordid: int):
 
 
 def createAuthRecordFromXML(api: QualysAPI.QualysAPI, authrecordxml: ET.Element):
+    """
+    NOT FULLY IMPLEMENTED
+    """
     fullurl = '%s/qps/rest/3.0/create/was/webappauthrecord' % api.server
 
     if authrecordxml.find('data') is None:
@@ -1061,8 +1145,10 @@ def createAuthRecordFromXML(api: QualysAPI.QualysAPI, authrecordxml: ET.Element)
 
 
 def createAuthRecord(api: QualysAPI.QualysAPI):
+    """NOT IMPLEMENTED"""
     pass
 
 
 def updateAuthRecord(api: QualysAPI.QualysAPI):
+    """NOT IMPLEMENTED"""
     pass
