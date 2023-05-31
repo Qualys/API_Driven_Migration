@@ -3,6 +3,16 @@ from QualysCommon import QualysAPI
 
 
 def responseHandler(response: ET.Element):
+    """
+    Handles an API response
+
+    Parameters:
+        response:           A document of type xml.etree.ElementTree.Element containing the full API response
+
+    Returns:
+        True                If the response was valid
+        False               If the response contains errors
+    """
     xmlreturn = response.find('.//RETURN')
     if xmlreturn.get('status') == 'SUCCESS':
         return True
