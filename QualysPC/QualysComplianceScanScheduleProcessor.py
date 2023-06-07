@@ -65,7 +65,8 @@ def _getDays(daynums: str):
     return days
 
 
-def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool = False, dist_group_map: dict = None):
+def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool = False, dist_group_map: dict = None,
+                         network_map: dict = None):
     requeststr = '/api/2.0/fo/schedule/scan/compliance/'
     payload = {'action': 'create', 'scan_title': scan.find('TITLE').text,
                'option_title': _safefind(scan, 'OPTION_PROFILE/TITLE')}
@@ -267,7 +268,10 @@ def convertScheduledScan(scan: ET.Element, appliance_map: dict, setactive: bool 
 
     # Networks ID
     if scan.find('NETWORK_ID') is not None:
-        payload['ip_network_id'] = _safefind(scan, 'NETWORK_ID')
+        if network_map is None:
+            payload['ip_network_id'] = _safefind(scan, 'NETWORK_ID')
+        else:
+            payload['ip_network_id'] = network_map[_safefind(scan, 'NETWORK_ID')]
 
     # EC2 targets
     if scan.find('CLOUD_DETAILS/CONNECTOR/NAME') is not None:

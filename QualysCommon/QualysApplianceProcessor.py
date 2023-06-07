@@ -129,7 +129,7 @@ def createAppliance(target_api: QualysAPI.QualysAPI, name: str, polling_interval
     if not responseHandler(resp):
         print('QualysApplianceProcessor.createAppliance failed')
         return None
-    return resp.find('.//*ID').text
+    return resp.find('.//ID').text, resp.find('.//ACTIVATION_CODE').text
 
 
 def replicateAppliance(target_api: QualysAPI.QualysAPI, appliance: ET.Element):

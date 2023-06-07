@@ -34,6 +34,15 @@ def getNetworks(source_api: QualysAPI.QualysAPI):
     return networks
 
 
+def getNetworksXML(source_api: QualysAPI.QualysAPI):
+    fullurl = '%s/api/2.0/fo/network/?action=list' % source_api.server
+    resp = source_api.makeCall(url=fullurl)
+    if not responseHandler(resp):
+        return None
+
+    return resp
+
+
 def createNetworks(target_api: QualysAPI.QualysAPI, networks: dict):
     """
     Creates Networks in a subscription from a list of networks obtained with getNetworks(), and creates a Network
