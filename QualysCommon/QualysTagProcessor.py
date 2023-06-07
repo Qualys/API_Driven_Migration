@@ -1,4 +1,4 @@
-from QualysCommon import QualysAPI
+import QualysAPI
 import xml.etree.ElementTree as ET
 
 

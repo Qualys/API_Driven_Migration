@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from API_Driven_Migration.QualysCommon import QualysAPI
+from QualysCommon import QualysAPI
 from os.path import exists, isfile
 
 
@@ -8,6 +8,16 @@ def responseHandler(resp: ET.Element):
 
 
 def getFullPolicyList(source_api: QualysAPI.QualysAPI):
+    """
+    Get a full list of policies
+
+    Parameters:
+        source_api:         An object of class QualysAPI
+
+    Returns:
+        policy_list:        A list of python dictionaries containing policy data, used in payloads to recreate
+                            the policy
+    """
     fullurl = '%s/api/2.0/fo/compliance/policy/?action=list&details=Basic' % source_api.server
     resp = source_api.makeCall(url=fullurl)
     if not responseHandler(resp):
@@ -50,7 +60,7 @@ def getFullPolicyList(source_api: QualysAPI.QualysAPI):
 
         if i.find('TAG_SET_EXCLUDE') is not None:
             taglist = []
-            for j in findall('TAG_SET_EXCLUDE/TAG_ID'):
+            for j in i.findall('TAG_SET_EXCLUDE/TAG_ID'):
                 taglist.append(j.text)
         else:
             taglist = None
@@ -72,6 +82,16 @@ def getFullPolicyList(source_api: QualysAPI.QualysAPI):
 
 
 def getPolicyIDList(source_api: QualysAPI.QualysAPI):
+    """
+    Get a list of policy IDs
+
+    Parameters:
+        source_api:         An object of type QualysAPI
+
+    Returns:
+        policylist:         A python list of string values containing policy IDs, representing all policy IDs in a
+                            subscription
+    """
     fullurl = '%s/api/2.0/fo/compliance/policy/?action=list&details=None' % source_api.server
     resp = source_api.makeCall(url=fullurl)
     if not responseHandler(resp):
@@ -95,6 +115,16 @@ def getPolicyIDList(source_api: QualysAPI.QualysAPI):
 
 
 def exportPolicy(source_api: QualysAPI.QualysAPI, policyid: str):
+    """
+    Export a policy
+
+    Parameters:
+        source_api:         An object of class QualysAPI
+        policyid:           A string value containing a policy ID
+
+    Returns:
+        resp:               A string value containing raw XML, representing the policy content
+    """
     fullurl = '%s/api/2.0/fo/compliance/policy/?action=export&show_user_controls=1&show_appendix=0&id=%s' % (
         source_api.server, policyid)
     resp = source_api.makeCall(url=fullurl, returnwith='text')
@@ -103,6 +133,18 @@ def exportPolicy(source_api: QualysAPI.QualysAPI, policyid: str):
 
 
 def importPolicy(target_api: QualysAPI.QualysAPI, policyname: str, policy: str):
+    """
+    Import a policy
+
+    Parameters:
+        target_api:         An object of class QualysAPI
+        policyname:         A string value containing the name to give the policy
+        policy:             A string value containing the raw XML, representing the policy content, as exported
+                            by exportPolicy()
+
+    Returns:
+        resp:               A document of type xml.etree.ElementTree.Element containing the full API response
+    """
     fullurl = '%s/api/2.0/fo/compliance/policy/?action=import&create_user_controls=1&title=%s' % (target_api.server,
                                                                                                   policyname)
     headers = {'Content-Type': 'text/xml', 'Content-Length': str(len(policy))}
@@ -114,6 +156,18 @@ def importPolicy(target_api: QualysAPI.QualysAPI, policyname: str, policy: str):
 
 
 def addAssetGroups(target_api: QualysAPI.QualysAPI, policyid: str, asset_group_ids: str, evaluate: bool = False):
+    """
+    Add Asset Groups to a policy's scope
+
+    Parameters:
+        target_api:         An object of class QualysAPI
+        policyid:           A string value containing the ID of the policy to update
+        asset_group_ids:    A string value containing a comma-separated list of Asset Group IDs
+        evaluate:           A boolean value to signal if the policy should be re-evaluated after the update
+
+    Response:
+        resp:               A document of type xml.etree.ElementTree.Element containing the full API response
+    """
     fullurl = '%s/api/2.0/fo/compliance/policy/?action=add_asset_group_ids' % target_api.server
     if evaluate:
         fullurl = '%s&evaluate_now=1' % fullurl
@@ -130,6 +184,17 @@ def addAssetGroups(target_api: QualysAPI.QualysAPI, policyid: str, asset_group_i
 
 
 def setAssetGroupAssignment(target_api: QualysAPI.QualysAPI, asset_group_ids: str, policy_id: str):
+    """
+    Set and override the Asset Groups in a policy's scope
+
+    Parameters:
+        target_api:         An object of class QualysAPI
+        asset_group_ids:    A string containing a comma-separated list of Asset Group IDs
+        policy_id:          A string containing the ID of the policy to update
+
+    Returns:
+        resp:               A document of type xml.etree.ElementTree.Element containing the full API response
+    """
     update_url = '%s/api/2.0/fo/compliance/policy?action=set_asset_group_ids&id=%s&asset_group_ids=%s' % (
         target_api.server, policy_id, asset_group_ids)
 

@@ -1,4 +1,4 @@
-from QualysCommon import QualysAPI
+import QualysAPI
 
 
 def responseHandler(response):
